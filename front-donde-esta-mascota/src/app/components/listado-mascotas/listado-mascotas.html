@@ -1,0 +1,14 @@
+<div class="container">
+  <h1> Mascotas Perdidas</h1>
+
+  <div class="grid">
+    <div *ngFor="let pub of publicaciones" class="card">
+      <img [src]="pub.imagenesUrls[0]" [alt]="pub.nombre">
+      <h3>{{ pub.nombre }}</h3>
+      <p>{{ pub.descripcion }}</p>
+      <p><strong>Color:</strong> {{ pub.color }}</p>
+      <p><strong>Tamaño:</strong> {{ pub.tamanio }}</p>
+      <p><strong>Contacto:</strong> {{ pub.telefono }}</p>
+    </div>
+  </div>
+</div>
