@@ -16,6 +16,8 @@ export interface UsuarioLogueado {
   email: string;
   telefono: string;
   imagen: string;
+  provincia: string;
+  localidad: string;
   publicaciones: Publicacion[]; // Lista de publicaciones del usuario (podría ser un array de IDs para optimizar)
   avistamientos: Avistamiento[]; // Lista de avistamientos del usuario (podría ser un array de IDs para optimizar)
 }
@@ -31,6 +33,10 @@ export interface Publicacion {
   telefono: string;
   estado: 'PERDIDO_PROPIO' | 'ENCONTRADO'; // O los valores que manejes
   imagenesUrls: string[];
+  provincia: string;
+  localidad: string;
+  calle: string;
+  altura: string;
   autor: AutorReportante;
   avistamientos: Avistamiento[]; // Los avistamientos asociados a esta publicación
 }
@@ -45,6 +51,10 @@ export interface Avistamiento {
   hora: string; // Formato "HH:MM:SS"
   descripcion: string;
   imagenesUrls: string[];
+  provincia: string;
+  localidad: string;
+  calle: string;
+  altura: string;
 }
 
 // --- Interfaz Principal del Estado Global ---
