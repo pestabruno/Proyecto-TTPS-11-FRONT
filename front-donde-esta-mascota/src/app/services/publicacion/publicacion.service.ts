@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Publicacion } from '../../interfaces/estado.interface';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -9,26 +10,27 @@ import { Publicacion } from '../../interfaces/estado.interface';
 export class PublicacionService {
 
   private apiUrl = 'http://localhost:8080/api/publicaciones';
+  private platformId = inject(PLATFORM_ID);
 
   constructor(private http: HttpClient) { }
 
+  private getHeaders(): HttpHeaders {
+    let headers = new HttpHeaders();
+    
+    // Solo acceder a localStorage en el navegador
+    if (isPlatformBrowser(this.platformId)) {
+      const token = localStorage.getItem('jwt_token');
+      if (token) {
+        headers = headers.set('Authorization', `Bearer ${token}`);
+      }
+    }
+    
+    return headers;
+  }
+
   obtenerTodas(): Observable<Publicacion[]> {
-    return this.http.get<Publicacion[]>(this.apiUrl);
+    return this.http.get<Publicacion[]>(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  obtenerPorAutor(autorId: number): Observable<Publicacion[]> {
-    return this.http.get<Publicacion[]>(`${this.apiUrl}/autor/${autorId}`);
-  }
 
-  crear(autorId: number, publicacion: any): Observable<Publicacion> {
-    return this.http.post<Publicacion>(`${this.apiUrl}/${autorId}`, publicacion);
-  }
-
-  editar(id: number, publicacion: any): Observable<Publicacion> {
-    return this.http.put<Publicacion>(`${this.apiUrl}/${id}`, publicacion);
-  }
-
-  eliminar(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
 }

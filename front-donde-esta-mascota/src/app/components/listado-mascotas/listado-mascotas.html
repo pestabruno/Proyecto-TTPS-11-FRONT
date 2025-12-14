@@ -3,7 +3,8 @@
 
   <div class="grid">
     <div *ngFor="let pub of publicaciones" class="card">
-      <img [src]="pub.imagenesUrls[0]" [alt]="pub.nombre">
+      <img [src]="pub.imagenes64[0]" [alt]="pub.nombre">
+<!-- Cambiar de imagenesUrls[0] a imagenes64[0] -->
       <h3>{{ pub.nombre }}</h3>
       <p>{{ pub.descripcion }}</p>
       <p><strong>Color:</strong> {{ pub.color }}</p>

@@ -28,17 +28,17 @@ export interface Publicacion {
   nombre: string;
   color: string;
   tamanio: string;
-  fecha: string; // Formato "YYYY-MM-DD"
+  fecha: string;
   descripcion: string;
   telefono: string;
-  estado: 'PERDIDO_PROPIO' | 'ENCONTRADO'; // O los valores que manejes
-  imagenesUrls: string[];
+  estado: 'PERDIDO_PROPIO' | 'ENCONTRADO';
+  imagenes64: string[];  // ⚠️ Cambiar de imagenesUrls a imagenes64
   provincia: string;
   localidad: string;
   calle: string;
   altura: string;
   autor: AutorReportante;
-  avistamientos: Avistamiento[]; // Los avistamientos asociados a esta publicación
+  avistamientos: Avistamiento[];
 }
 
 // Estructura de un Avistamiento
@@ -50,7 +50,7 @@ export interface Avistamiento {
   fecha: string; // Formato "YYYY-MM-DD"
   hora: string; // Formato "HH:MM:SS"
   descripcion: string;
-  imagenesUrls: string[];
+  imagenes64: string[];
   provincia: string;
   localidad: string;
   calle: string;

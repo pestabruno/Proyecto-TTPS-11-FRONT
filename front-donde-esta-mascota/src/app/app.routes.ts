@@ -6,7 +6,12 @@ import { ListadoMascotasComponent } from './components/listado-mascotas/listado-
 
 export const routes: Routes = [
   {
-    path: 'ListadoMascotas',
+    path: '',
+    redirectTo: 'listado-mascotas',
+    pathMatch: 'full'
+  },
+  {
+    path: 'listado-mascotas',  // ⚠️ Minúsculas (convención)
     component: ListadoMascotasComponent,
     title: 'Mascotas Perdidas',
   },
