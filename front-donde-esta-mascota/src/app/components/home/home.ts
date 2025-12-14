@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MatIcon } from '@angular/material/icon';
 import { faDog, faCat } from '@fortawesome/free-solid-svg-icons'; // <-- Importamos los íconos
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
@@ -7,7 +6,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrls: ['./home.css'],
-  imports: [MatIcon, FontAwesomeModule],
+  imports: [FontAwesomeModule],
 })
 export class HomeComponent implements OnInit {
   tituloPrincipal: string = 'Encuentra a tu Mascota Perdida';

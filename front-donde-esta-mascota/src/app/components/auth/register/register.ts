@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, NgZone } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -7,19 +7,19 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
+import { NgxFileDropModule } from 'ngx-file-drop';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
-// Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
-// Servicios
 import { AuthService } from '../../../services/auth/AuthService';
 import { EstadoApiService } from '../../../services/estado-api';
 
@@ -47,6 +47,8 @@ export function passwordMatchValidator(control: AbstractControl): ValidationErro
     MatButtonModule,
     MatIconModule,
     RouterModule,
+    FormsModule,
+    NgxFileDropModule,
   ],
 })
 export class RegisterComponent implements OnInit {
@@ -55,23 +57,28 @@ export class RegisterComponent implements OnInit {
   hideConfirmPassword = true;
   errorMessage: string | null = null;
 
+  public profileFile: File | null = null;
+  public imagePreview: string | ArrayBuffer | null = null;
+  public profileImageBase64: string | null = null;
+
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private estadoApi = inject(EstadoApiService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   ngOnInit(): void {
-    const URL_REGEXP =
-      /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})$/i;
     this.registerForm = this.fb.group(
       {
         nombre: ['', [Validators.required]],
         apellido: ['', [Validators.required]],
         dni: ['', [Validators.required, Validators.pattern(/^[0-9]{7,9}$/)]],
         telefono: ['', [Validators.required, Validators.pattern(/^[0-9+]{8,15}$/)]],
-        imagen: ['', [Validators.required, Validators.pattern(URL_REGEXP)]],
-        email: ['', [Validators.required, Validators.email]],
+        provincia: ['', [Validators.required]],
+        localidad: ['', [Validators.required]],
+        imagen: ['', [Validators.required]],
 
+        email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', [Validators.required]],
       },
@@ -91,6 +98,12 @@ export class RegisterComponent implements OnInit {
   get telefono() {
     return this.registerForm.get('telefono');
   }
+  get provincia() {
+    return this.registerForm.get('provincia');
+  }
+  get localidad() {
+    return this.registerForm.get('localidad');
+  }
   get imagen() {
     return this.registerForm.get('imagen');
   }
@@ -104,6 +117,68 @@ export class RegisterComponent implements OnInit {
     return this.registerForm.get('confirmPassword');
   }
 
+  public dropped(event: any) {
+    this.profileFile = null;
+    this.imagePreview = null;
+    this.profileImageBase64 = null;
+
+    if (!event || !event.files || event.files.length === 0) {
+      return;
+    }
+
+    const droppedFile = event.files[0];
+
+    if (droppedFile.fileEntry.isFile) {
+      const fileEntry = droppedFile.fileEntry as any;
+
+      fileEntry.file((file: File) => {
+        this.profileFile = file;
+
+        const reader = new FileReader();
+
+        reader.onload = (e: any) => {
+          this.ngZone.run(() => {
+            this.imagePreview = e.target.result;
+            this.profileImageBase64 = e.target.result;
+
+            this.registerForm.get('imagen')?.setValue(file.name);
+            this.registerForm.get('imagen')?.markAsDirty();
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  }
+
+  public fileOver(event: any) {}
+  public fileLeave(event: any) {}
+
+  public onFileSelected(event: any) {
+    this.profileFile = null;
+    this.imagePreview = null;
+    this.profileImageBase64 = null;
+
+    const fileList: FileList = event.target.files;
+
+    if (fileList && fileList.length > 0) {
+      const file: File = fileList[0];
+      this.profileFile = file;
+
+      const reader = new FileReader();
+
+      reader.onload = (e: any) => {
+        this.ngZone.run(() => {
+          this.imagePreview = e.target.result;
+          this.profileImageBase64 = e.target.result;
+
+          this.registerForm.get('imagen')?.setValue(file.name);
+          this.registerForm.get('imagen')?.markAsDirty();
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   onSubmit() {
     this.errorMessage = null;
 
@@ -112,8 +187,26 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    const { nombre, apellido, dni, telefono, imagen, email, password } = this.registerForm.value;
-    const registrationData = { nombre, apellido, dni, telefono, imagen, email, password };
+    if (!this.profileImageBase64) {
+      this.errorMessage = 'La foto de perfil es obligatoria (arrastrar y soltar).';
+      return;
+    }
+
+    const finalImagenValue = this.profileImageBase64 || '';
+
+    const { nombre, apellido, dni, telefono, email, password, provincia, localidad } =
+      this.registerForm.value;
+    const registrationData = {
+      nombre,
+      apellido,
+      dni,
+      telefono,
+      provincia,
+      localidad,
+      imagen: finalImagenValue,
+      email,
+      password,
+    };
 
     this.authService
       .register(registrationData)
