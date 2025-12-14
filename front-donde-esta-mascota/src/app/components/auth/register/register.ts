@@ -129,6 +129,7 @@ export class RegisterComponent implements OnInit {
             localStorage.setItem('jwt_token', registerResponse.token);
             console.log('Token JWT guardado.');
           }
+          localStorage.setItem('user_id', userId.toString());
 
           return this.authService.getUsuarioData(userId);
         })

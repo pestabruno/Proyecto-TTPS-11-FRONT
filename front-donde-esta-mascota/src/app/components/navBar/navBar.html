@@ -1,0 +1,31 @@
+<mat-toolbar class="navbar">
+  <a [routerLink]="['/']" class="brand-name">
+    <img src="/images/icono.png" class="logo-image" />
+  </a>
+  <span class="spacer"></span>
+
+  @if (isLoggedIn$ | async) {
+  <a mat-button [routerLink]="['/home']">Home</a>
+  <a mat-button [routerLink]="['/reportar']">Reportar Mascota</a>
+  <a mat-button [routerLink]="['/listado']">Listado Mascotas</a>
+  <a mat-button [routerLink]="['/ranking']">Ranking Usuarios</a>
+  }
+
+  <span class="spacer"></span>
+
+  @if (isLoggedIn$ | async) {
+
+  <button mat-button (click)="onGoToProfile()">
+    <mat-icon>person</mat-icon>
+    @if (usuario$ | async; as user) {
+    {{ user.nombre }}
+    } @else { Mi Cuenta }
+  </button>
+
+  <a class="auth-button logout-button" (click)="onLogout()">Cerrar Sesión</a>
+  } @else {
+  <a class="auth-button" [routerLink]="['/login']"> Iniciar Sesión </a>
+
+  <a class="auth-button" [routerLink]="['/register']"> Registrarse </a>
+  }
+</mat-toolbar>

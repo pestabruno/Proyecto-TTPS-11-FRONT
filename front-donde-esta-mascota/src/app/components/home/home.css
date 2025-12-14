@@ -1,0 +1,70 @@
+/* ---------------------------------------------------- */
+/* 1. SECCIÓN PRINCIPAL (FONDO AZUL) */
+/* ---------------------------------------------------- */
+
+.hero-section {
+  /* Usar el mismo azul que el navbar */
+  background-color: #1976d2;
+  color: white; /* Texto blanco en la sección azul */
+
+  /* Altura: Define qué tan grande será esta sección superior */
+  min-height: 250px;
+
+  /* Flexbox para centrar el contenido vertical y horizontalmente */
+  display: flex;
+  justify-content: center; /* Centrado horizontal */
+  align-items: center; /* Centrado vertical */
+}
+
+/* ---------------------------------------------------- */
+/* 2. CONTENEDOR DE ÍCONOS (EL RECUADRO) */
+/* ---------------------------------------------------- */
+
+.icon-container {
+  display: flex; /* Flexbox para colocar los íconos uno al lado del otro */
+  align-items: center;
+  gap: 30px; /* Espacio entre el perro y el gato */
+
+  /* Estilos del Recuadro */
+  background-color: white;
+  border-radius: 8px; /* Bordes ligeramente redondeados */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Sombra sutil para destacarlo */
+  padding: 30px 40px;
+}
+
+/* ---------------------------------------------------- */
+/* 3. ESTILOS DE LOS ÍCONOS INDIVIDUALES */
+/* ---------------------------------------------------- */
+
+.icon-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer; /* Indica que se puede hacer clic (si actúan como filtros) */
+}
+
+.pet-icon {
+  font-size: 80px; /* Tamaño grande para el ícono */
+  width: 80px;
+  height: 80px;
+  color: #1976d2; /* Color azul para los íconos dentro del recuadro blanco */
+  margin-bottom: 5px;
+}
+
+.icon-label {
+  margin: 0;
+  font-size: 1.1em;
+  color: #333; /* Texto oscuro */
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------- */
+/* 4. SEPARADOR (OPCIONAL) */
+/* ---------------------------------------------------- */
+
+.separator {
+  width: 2px;
+  height: 60px;
+  background-color: #ccc;
+  margin: 0 10px;
+}

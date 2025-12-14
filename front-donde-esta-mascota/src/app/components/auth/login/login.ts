@@ -74,6 +74,7 @@ export class LoginComponent implements OnInit {
             localStorage.setItem('jwt_token', loginResponse.token);
             console.log('Token JWT guardado.');
           }
+          localStorage.setItem('user_id', userId.toString());
 
           return this.authService.getUsuarioData(userId);
         })

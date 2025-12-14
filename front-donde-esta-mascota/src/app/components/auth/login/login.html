@@ -1,57 +1,61 @@
 <div class="login-container">
-    <mat-card class="login-card">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <div mat-card-avatar class="header-image">
+        <mat-icon color="primary">lock_open</mat-icon>
+      </div>
+      <mat-card-title>Iniciar Sesión</mat-card-title>
+    </mat-card-header>
 
-        <mat-card-header>
-            <div mat-card-avatar class="header-image">
-                <mat-icon color="primary">lock_open</mat-icon>
-            </div>
-            <mat-card-title>Iniciar Sesión</mat-card-title>
-        </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required />
+          <mat-icon matSuffix>email</mat-icon>
 
-        <mat-card-content>
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          @if (email?.hasError('required')) {
+          <mat-error>El email es obligatorio</mat-error>
+          } @if (email?.hasError('email')) {
+          <mat-error>Formato de email inválido</mat-error>
+          }
+        </mat-form-field>
 
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email" required>
-                    <mat-icon matSuffix>email</mat-icon>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            [type]="hidePassword ? 'password' : 'text'"
+            required
+          />
 
-                    @if (email?.hasError('required')) {
-                    <mat-error>El email es obligatorio</mat-error>
-                    }
-                    @if (email?.hasError('email')) {
-                    <mat-error>Formato de email inválido</mat-error>
-                    }
-                </mat-form-field>
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
 
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Contraseña</mat-label>
-                    <input matInput formControlName="password" [type]="hidePassword ? 'password' : 'text'" required>
+          @if (password?.hasError('required')) {
+          <mat-error>La contraseña es obligatoria</mat-error>
+          } @if (password?.hasError('minlength')) {
+          <mat-error>Debe tener al menos 6 caracteres</mat-error>
+          }
+        </mat-form-field>
 
-                    <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-                        <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-                    </button>
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="loginForm.invalid"
+          class="full-width submit-button"
+        >
+          Entrar
+        </button>
+      </form>
+    </mat-card-content>
 
-                    @if (password?.hasError('required')) {
-                    <mat-error>La contraseña es obligatoria</mat-error>
-                    }
-                    @if (password?.hasError('minlength')) {
-                    <mat-error>Debe tener al menos 6 caracteres</mat-error>
-                    }
-                </mat-form-field>
-
-                <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid"
-                    class="full-width submit-button">
-                    Entrar
-                </button>
-
-            </form>
-        </mat-card-content>
-
-        <div class="links">
-            <a href="#" class="link-text">¿Olvidaste tu contraseña?</a>
-            <a href="#" class="link-text">¿No tienes cuenta? Regístrate</a>
-        </div>
-
-    </mat-card>
+    <div class="links">
+      <a href="#" class="link-text">¿Olvidaste tu contraseña?</a>
+      <a [routerLink]="['/register']" class="link-text"> ¿No tienes cuenta? Regístrate </a>
+    </div>
+  </mat-card>
 </div>
