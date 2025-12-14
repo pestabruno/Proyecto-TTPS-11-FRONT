@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
@@ -27,6 +28,7 @@ import { switchMap } from 'rxjs/operators';
     MatFormFieldModule,
     MatButtonModule,
     MatIconModule,
+    RouterModule,
   ],
 })
 export class LoginComponent implements OnInit {

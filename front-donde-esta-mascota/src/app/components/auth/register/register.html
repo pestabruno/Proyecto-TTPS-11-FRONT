@@ -1,0 +1,137 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <div mat-card-avatar class="header-image">
+        <mat-icon color="primary">person_add</mat-icon>
+      </div>
+      <mat-card-title>Crear Cuenta</mat-card-title>
+      <mat-card-subtitle>Regístrate en Donde Está Mascota</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        @if (errorMessage) {
+        <mat-error class="general-error-message">{{ errorMessage }}</mat-error>
+        }
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombre</mat-label>
+          <input matInput formControlName="nombre" type="text" required />
+          <mat-icon matSuffix>badge</mat-icon>
+          @if (nombre?.hasError('required') && (nombre?.touched || registerForm.dirty)) {
+          <mat-error>El nombre es obligatorio</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Apellido</mat-label>
+          <input matInput formControlName="apellido" type="text" required />
+          <mat-icon matSuffix>badge</mat-icon>
+          @if (apellido?.hasError('required') && (apellido?.touched || registerForm.dirty)) {
+          <mat-error>El apellido es obligatorio</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>DNI</mat-label>
+          <input matInput formControlName="dni" type="text" required />
+          <mat-icon matSuffix>credit_card</mat-icon>
+          @if (dni?.hasError('required') && (dni?.touched || registerForm.dirty)) {
+          <mat-error>El DNI es obligatorio</mat-error>
+          } @if (dni?.hasError('pattern')) {
+          <mat-error>El DNI debe tener 7 a 9 dígitos numéricos</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Teléfono</mat-label>
+          <input matInput formControlName="telefono" type="tel" required />
+          <mat-icon matSuffix>phone</mat-icon>
+          @if (telefono?.hasError('required') && (telefono?.touched || registerForm.dirty)) {
+          <mat-error>El teléfono es obligatorio</mat-error>
+          } @if (telefono?.hasError('pattern')) {
+          <mat-error>El formato de teléfono es incorrecto</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>URL de Imagen de Perfil</mat-label>
+          <input matInput formControlName="imagen" type="url" required />
+          <mat-icon matSuffix>image</mat-icon>
+          @if (imagen?.hasError('required') && (imagen?.touched || registerForm.dirty)) {
+          <mat-error>La URL de la imagen es obligatoria</mat-error>
+          } @if (imagen?.hasError('pattern')) {
+          <mat-error>Debe ser una URL válida (ej: https://ejemplo.com/)</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" required />
+          <mat-icon matSuffix>email</mat-icon>
+          @if (email?.hasError('required') && (email?.touched || registerForm.dirty)) {
+          <mat-error>El email es obligatorio</mat-error>
+          } @if (email?.hasError('email')) {
+          <mat-error>Formato de email inválido</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <input
+            matInput
+            formControlName="password"
+            [type]="hidePassword ? 'password' : 'text'"
+            required
+          />
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (password?.hasError('required') && (password?.touched || registerForm.dirty)) {
+          <mat-error>La contraseña es obligatoria</mat-error>
+          } @if (password?.hasError('minlength')) {
+          <mat-error>Debe tener al menos 6 caracteres</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirmar Contraseña</mat-label>
+          <input
+            matInput
+            formControlName="confirmPassword"
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            required
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            (click)="hideConfirmPassword = !hideConfirmPassword"
+            type="button"
+          >
+            <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (confirmPassword?.hasError('required') && (confirmPassword?.touched ||
+          registerForm.dirty)) {
+          <mat-error>Confirmar la contraseña es obligatorio</mat-error>
+          } @if (registerForm.hasError('passwordsMismatch') && confirmPassword?.valid) {
+          <mat-error>Las contraseñas no coinciden</mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="registerForm.invalid"
+          class="full-width submit-button"
+        >
+          Registrarme
+        </button>
+      </form>
+    </mat-card-content>
+
+    <div class="links">
+      <a [routerLink]="['/login']" class="link-text">¿Ya tienes cuenta? Iniciar Sesión</a>
+    </div>
+  </mat-card>
+</div>
