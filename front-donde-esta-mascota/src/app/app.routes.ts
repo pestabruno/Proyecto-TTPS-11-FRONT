@@ -4,7 +4,7 @@ import { ListadoMascotasComponent } from './components/listado-mascotas/listado-
 
 export const routes: Routes = [
   {
-    path: '',
+    path: 'ListadoMascotas',
     component: ListadoMascotasComponent,
     title: 'Mascotas Perdidas',
   },
