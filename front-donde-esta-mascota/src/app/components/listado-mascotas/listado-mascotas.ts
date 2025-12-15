@@ -19,7 +19,7 @@ export class ListadoMascotasComponent implements OnInit, AfterViewInit, OnDestro
   publicaciones: Publicacion[] = [];
   
   Math = Math;
-  // Paginación
+  // Paginacion
   publicacionesPaginadas: Publicacion[] = [];
   paginaActual: number = 1;
   itemsPorPagina: number = 10; // Ajustá este número según prefieras

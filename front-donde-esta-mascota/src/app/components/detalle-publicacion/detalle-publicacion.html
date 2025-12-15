@@ -16,7 +16,7 @@
     <button (click)="volver()">Volver al listado</button>
   </div>
 
-  <!-- Contenido de la publicación -->
+  <!-- Contenido de la publicacion -->
   <div *ngIf="publicacion && !cargando" class="detalle-content">
     
     <!-- Encabezado -->
@@ -27,7 +27,7 @@
       </span>
     </div>
 
-    <!-- Imágenes -->
+    <!-- Imagenes -->
     <div class="imagenes-galeria" *ngIf="publicacion.imagenes64 && publicacion.imagenes64.length > 0">
       <img [src]="publicacion.imagenes64[0]" [alt]="publicacion.nombre" class="imagen-principal">
     </div>
@@ -60,7 +60,7 @@
       </div>
     </div>
 
-    <!-- Botón de acción principal -->
+    <!-- Boton de acción principal -->
     <div class="acciones-container">
       <button class="btn-accion btn-avistamiento" (click)="agregarAvistamiento()">
         Reportar un avistamiento
@@ -83,7 +83,7 @@
       </div>
     </div>
 
-    <!-- Sección de avistamientos -->
+    <!-- avistamientos -->
     <div class="avistamientos-section" *ngIf="publicacion.avistamientos && publicacion.avistamientos.length > 0">
       <h3>Avistamientos reportados ({{ publicacion.avistamientos.length }})</h3>
       <div class="avistamiento-card" *ngFor="let avistamiento of publicacion.avistamientos">
@@ -101,7 +101,7 @@
 
 
 
-<!-- MODAL DE EDITAR (agregar al final del archivo) -->
+<!-- MODAL DE EDITAR-->
 <div class="modal-overlay" *ngIf="mostrarModalEditar">
   <div class="modal-content">
     <button class="cerrar-modal" (click)="cerrarModalEditar()">×</button>
