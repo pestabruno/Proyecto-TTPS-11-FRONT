@@ -19,7 +19,7 @@
   <!-- Contenido de la publicacion -->
   <div *ngIf="publicacion && !cargando" class="detalle-content">
     
-    <!-- ✅ NUEVO: Layout con grid para contenido principal y panel lateral -->
+    <!-- Layout con grid para contenido principal y panel lateral -->
     <div class="detalle-layout">
       
       <!-- Contenido principal (izquierda) -->
@@ -33,12 +33,50 @@
           </span>
         </div>
 
-        <!-- Imagenes -->
-        <div class="imagenes-galeria" *ngIf="publicacion.imagenes64 && publicacion.imagenes64.length > 0">
-          <img [src]="publicacion.imagenes64[0]" [alt]="publicacion.nombre" class="imagen-principal">
+        <!-- Galería de imágenes -->
+        <div class="galeria-container" *ngIf="publicacion.imagenes64 && publicacion.imagenes64.length > 0">
+          
+          <!-- Imagen principal -->
+          <div class="imagen-principal-container">
+            <img 
+              [src]="publicacion.imagenes64[imagenActualIndex]" 
+              [alt]="publicacion.nombre" 
+              class="imagen-principal">
+            
+            <!-- Botones de navegación (solo si hay más de 1 imagen) -->
+            <button 
+              *ngIf="publicacion.imagenes64.length > 1 && imagenActualIndex > 0"
+              class="nav-btn nav-btn-izq" 
+              (click)="imagenAnterior()">
+              ‹
+            </button>
+            <button 
+              *ngIf="publicacion.imagenes64.length > 1 && imagenActualIndex < publicacion.imagenes64.length - 1"
+              class="nav-btn nav-btn-der" 
+              (click)="imagenSiguiente()">
+              ›
+            </button>
+            
+            <!-- Contador de imágenes -->
+            <div class="contador-imagenes" *ngIf="publicacion.imagenes64.length > 1">
+              {{ imagenActualIndex + 1 }} / {{ publicacion.imagenes64.length }}
+            </div>
+          </div>
+
+          <!-- Miniaturas (thumbnails) -->
+          <div class="thumbnails-container" *ngIf="publicacion.imagenes64.length > 1">
+            <div 
+              *ngFor="let imagen of publicacion.imagenes64; let i = index"
+              class="thumbnail"
+              [class.thumbnail-activa]="i === imagenActualIndex"
+              (click)="seleccionarImagen(i)">
+              <img [src]="imagen" [alt]="'Imagen ' + (i + 1)">
+            </div>
+          </div>
         </div>
+
         <div *ngIf="!publicacion.imagenes64 || publicacion.imagenes64.length === 0" class="sin-imagen-detalle">
-          <p>Sin imagen disponible</p>
+          <p>📷 Sin imágenes disponibles</p>
         </div>
 
         <!-- Información principal -->

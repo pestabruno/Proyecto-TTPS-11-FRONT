@@ -49,4 +49,12 @@ editar(id:number, publicacion: Publicacion): Observable<Publicacion> {
   return this.http.put<Publicacion>(`${this.apiUrl}/${id}`, publicacion, { headers: this.getHeaders() });
 }
 
+crearPublicacion(autorId: number, publicacion: any): Observable<any> {
+
+  const url = `${this.apiUrl}/${autorId}`;
+  
+  return this.http.post<any>(url, publicacion, { headers: this.getHeaders() });
+}
+
+
 }

@@ -4,7 +4,7 @@ import { RegisterComponent } from './components/auth/register/register';
 import { HomeComponent } from './components/home/home';
 import { ListadoMascotasComponent } from './components/listado-mascotas/listado-mascotas';
 import { DetallePublicacionComponent } from './components/detalle-publicacion/detalle-publicacion';
-
+import { ReportarMascotaComponent } from './components/reportar-mascota/reportar-mascota';
 export const routes: Routes = [
   {
     path: '',
@@ -36,4 +36,9 @@ export const routes: Routes = [
     component: HomeComponent,
     title: 'Home',
   },
+  {
+    path: 'reportar',
+    component: ReportarMascotaComponent,
+    title: 'Reportar Mascota',
+  }
 ];

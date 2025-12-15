@@ -1,0 +1,245 @@
+<div class="reportar-container">
+  <div class="reportar-card">
+    <div class="header">
+      <h1>Reportar Mascota Perdida</h1>
+      <p class="subtitle">Completá la información para ayudar a encontrar a tu mascota</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Sección: Información de la mascota -->
+      <div class="section">
+        <h2>Información de la mascota</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="nombre" 
+              formControlName="nombre"
+              placeholder="Ej: Firulais"
+              [class.error]="hasError('nombre', 'required') || hasError('nombre', 'minlength')">
+            <span class="error-message" *ngIf="nombre?.touched && nombre?.invalid">
+              {{ getErrorMessage('nombre') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="color">Color <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="color" 
+              formControlName="color"
+              placeholder="Ej: Marrón con blanco"
+              [class.error]="hasError('color', 'required')">
+            <span class="error-message" *ngIf="color?.touched && color?.invalid">
+              {{ getErrorMessage('color') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tamanio">Tamaño <span class="required">*</span></label>
+            <select 
+              id="tamanio" 
+              formControlName="tamanio"
+              [class.error]="hasError('tamanio', 'required')">
+              <option value="">Seleccioná un tamaño</option>
+              <option value="Chico">Chico</option>
+              <option value="Mediano">Mediano</option>
+              <option value="Grande">Grande</option>
+            </select>
+            <span class="error-message" *ngIf="tamanio?.touched && tamanio?.invalid">
+              {{ getErrorMessage('tamanio') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="estado">Tipo de reporte <span class="required">*</span></label>
+            <select 
+              id="estado" 
+              formControlName="estado"
+              [class.error]="hasError('estado', 'required')">
+              <option value="PERDIDO_PROPIO">Es mi mascota (está perdida)</option>
+              <option value="PERDIDO_AJENO">Encontré una mascota</option>
+            </select>
+            <span class="error-message" *ngIf="estado?.touched && estado?.invalid">
+              {{ getErrorMessage('estado') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="descripcion">Descripción <span class="required">*</span></label>
+          <textarea 
+            id="descripcion" 
+            formControlName="descripcion"
+            rows="4"
+            placeholder="Describe a tu mascota: características distintivas, comportamiento, última vez vista, etc."
+            [class.error]="hasError('descripcion', 'required') || hasError('descripcion', 'minlength')">
+          </textarea>
+          <span class="error-message" *ngIf="descripcion?.touched && descripcion?.invalid">
+            {{ getErrorMessage('descripcion') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Sección: Ubicación -->
+      <div class="section">
+        <h2>Ubicación</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="provincia">Provincia <span class="required">*</span></label>
+            <select 
+              id="provincia" 
+              formControlName="provincia"
+              [class.error]="hasError('provincia', 'required')">
+              <option value="">Seleccioná una provincia</option>
+              <option value="Buenos Aires">Buenos Aires</option>
+              <option value="CABA">CABA</option>
+              <option value="Catamarca">Catamarca</option>
+              <option value="Chaco">Chaco</option>
+              <option value="Chubut">Chubut</option>
+              <option value="Córdoba">Córdoba</option>
+              <option value="Corrientes">Corrientes</option>
+              <option value="Entre Ríos">Entre Ríos</option>
+              <option value="Formosa">Formosa</option>
+              <option value="Jujuy">Jujuy</option>
+              <option value="La Pampa">La Pampa</option>
+              <option value="La Rioja">La Rioja</option>
+              <option value="Mendoza">Mendoza</option>
+              <option value="Misiones">Misiones</option>
+              <option value="Neuquén">Neuquén</option>
+              <option value="Río Negro">Río Negro</option>
+              <option value="Salta">Salta</option>
+              <option value="San Juan">San Juan</option>
+              <option value="San Luis">San Luis</option>
+              <option value="Santa Cruz">Santa Cruz</option>
+              <option value="Santa Fe">Santa Fe</option>
+              <option value="Santiago del Estero">Santiago del Estero</option>
+              <option value="Tierra del Fuego">Tierra del Fuego</option>
+              <option value="Tucumán">Tucumán</option>
+            </select>
+            <span class="error-message" *ngIf="provincia?.touched && provincia?.invalid">
+              {{ getErrorMessage('provincia') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="localidad">Localidad <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="localidad" 
+              formControlName="localidad"
+              placeholder="Ej: La Plata"
+              [class.error]="hasError('localidad', 'required')">
+            <span class="error-message" *ngIf="localidad?.touched && localidad?.invalid">
+              {{ getErrorMessage('localidad') }}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="calle">Calle <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="calle" 
+              formControlName="calle"
+              placeholder="Ej: Av. 7"
+              [class.error]="hasError('calle', 'required')">
+            <span class="error-message" *ngIf="calle?.touched && calle?.invalid">
+              {{ getErrorMessage('calle') }}
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="altura">Altura <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="altura" 
+              formControlName="altura"
+              placeholder="Ej: 1234"
+              [class.error]="hasError('altura', 'required') || hasError('altura', 'pattern')">
+            <span class="error-message" *ngIf="altura?.touched && altura?.invalid">
+              {{ getErrorMessage('altura') }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: Contacto -->
+      <div class="section">
+        <h2>Contacto</h2>
+        
+        <div class="form-group">
+          <label for="telefono">Teléfono <span class="required">*</span></label>
+          <input 
+            type="tel" 
+            id="telefono" 
+            formControlName="telefono"
+            placeholder="Ej: 11-4444-5555"
+            [class.error]="hasError('telefono', 'required') || hasError('telefono', 'pattern')">
+          <span class="error-message" *ngIf="telefono?.touched && telefono?.invalid">
+            {{ getErrorMessage('telefono') }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Sección: Imágenes -->
+      <div class="section">
+        <h2>Imágenes de la mascota</h2>
+        <p class="section-description">Podés subir hasta 5 imágenes (máximo 5MB cada una)</p>
+        
+        <div class="upload-area">
+          <label for="file-upload" class="upload-label">
+            <div class="upload-icon"></div>
+            <div class="upload-text">
+              <strong>Click aquí para seleccionar imágenes</strong>
+              <span>JPG, PNG o WEBP (máximo 5MB cada una)</span>
+            </div>
+          </label>
+          <input 
+            type="file" 
+            id="file-upload" 
+            accept="image/*" 
+            multiple
+            (change)="onFileSelected($event)"
+            style="display: none;">
+        </div>
+
+        <!-- Previews de las imágenes -->
+        <div class="imagenes-preview" *ngIf="imagesPreviews.length > 0">
+          <div *ngFor="let preview of imagesPreviews; let i = index" class="preview-item">
+            <img [src]="preview" alt="Preview {{ i + 1 }}">
+            <button type="button" class="remove-image" (click)="removeImage(i)">×</button>
+          </div>
+        </div>
+
+        <p class="images-count" *ngIf="imagenesFiles.length > 0">
+          {{ imagenesFiles.length }} imagen(es) seleccionada(s)
+        </p>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn-cancelar" 
+          (click)="cancelar()"
+          [disabled]="guardando">
+          Cancelar
+        </button>
+        <button 
+          type="submit" 
+          class="btn-publicar"
+          [disabled]="registerForm.invalid || guardando">
+          {{ guardando ? 'Publicando...' : 'Publicar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

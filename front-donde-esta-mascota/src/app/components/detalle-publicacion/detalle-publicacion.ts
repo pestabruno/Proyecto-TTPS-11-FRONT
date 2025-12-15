@@ -9,7 +9,7 @@ import Swal from 'sweetalert2'
 @Component({
   selector: 'app-detalle-publicacion',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './detalle-publicacion.html',
   styleUrls: ['./detalle-publicacion.css']
 })
@@ -26,6 +26,9 @@ export class DetallePublicacionComponent implements OnInit {
   usuarioLogueadoId: number | null = null;
   esAutor: boolean = false;
   eliminando: boolean = false;
+
+  // Para la galería de imágenes
+  imagenActualIndex: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -92,50 +95,49 @@ export class DetallePublicacionComponent implements OnInit {
   }
 
   eliminarPublicacion(): void {
-  if (!this.publicacion) return;
-  
-  Swal.fire({
-    title: '¿Estás seguro?',
-    text: `¿Querés eliminar la publicación de "${this.publicacion.nombre}"? Esta acción no se puede deshacer.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Si, eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.eliminando = true;
-      this.cdr.detectChanges();
-      
-      this.publicacionService.eliminar(this.publicacion!.id).subscribe({
-        next: () => {
-          Swal.fire({
-            icon: 'success',
-            title: '¡Eliminado!',
-            text: 'La publicación fue eliminada correctamente',
-            timer: 2000,
-            showConfirmButton: false
-          }).then(() => {
-            this.router.navigate(['/listado']);
-          });
-        },
-        error: (err) => {
-          console.error('Error al eliminar:', err);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo eliminar la publicación. Intentá de nuevo.'
-          });
-          this.eliminando = false;
-          this.cdr.detectChanges();
-        }
-      });
-    }
-  });
-}
+    if (!this.publicacion) return;
+    
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: `¿Querés eliminar la publicación de "${this.publicacion.nombre}"? Esta acción no se puede deshacer.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Si, eliminar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.eliminando = true;
+        this.cdr.detectChanges();
+        
+        this.publicacionService.eliminar(this.publicacion!.id).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: '¡Eliminado!',
+              text: 'La publicación fue eliminada correctamente',
+              timer: 2000,
+              showConfirmButton: false
+            }).then(() => {
+              this.router.navigate(['/listado']);
+            });
+          },
+          error: (err) => {
+            console.error('Error al eliminar:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo eliminar la publicación. Intentá de nuevo.'
+            });
+            this.eliminando = false;
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
+  }
 
-  
   editarPublicacion(): void {
     if (this.publicacion) {
       // Copiamos los datos actuales para editarlos
@@ -160,37 +162,54 @@ export class DetallePublicacionComponent implements OnInit {
   }
 
   guardarEdicion(): void {
-  if (!this.publicacion) return;
+    if (!this.publicacion) return;
 
-  this.guardando = true;
+    this.guardando = true;
 
-  this.publicacionService.editar(this.publicacion.id, this.publicacionEditada).subscribe({
-    next: (data) => {
-      this.publicacion = data;
-      this.guardando = false;
-      this.cerrarModalEditar();
-      
-      Swal.fire({
-        icon: 'success',
-        title: '¡Actualizado!',
-        text: 'La publicación fue actualizada correctamente',
-        timer: 2000,
-        showConfirmButton: false
-      });
-      
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Error al editar:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo actualizar la publicación. Intentá de nuevo.'
-      });
-      this.guardando = false;
-      this.cdr.detectChanges();
+    this.publicacionService.editar(this.publicacion.id, this.publicacionEditada).subscribe({
+      next: (data) => {
+        this.publicacion = data;
+        this.guardando = false;
+        this.cerrarModalEditar();
+        
+        Swal.fire({
+          icon: 'success',
+          title: '¡Actualizado!',
+          text: 'La publicación fue actualizada correctamente',
+          timer: 2000,
+          showConfirmButton: false
+        });
+        
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al editar:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'No se pudo actualizar la publicación. Intentá de nuevo.'
+        });
+        this.guardando = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // Métodos para la galería de imágenes
+  imagenAnterior(): void {
+    if (this.publicacion?.imagenes64 && this.imagenActualIndex > 0) {
+      this.imagenActualIndex--;
     }
-  });
-}
+  }
 
+  imagenSiguiente(): void {
+    if (this.publicacion?.imagenes64 && 
+        this.imagenActualIndex < this.publicacion.imagenes64.length - 1) {
+      this.imagenActualIndex++;
+    }
+  }
+
+  seleccionarImagen(index: number): void {
+    this.imagenActualIndex = index;
+  }
 }
