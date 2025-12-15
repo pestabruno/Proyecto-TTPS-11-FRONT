@@ -38,4 +38,15 @@ export class PublicacionService {
     return this.http.get<Publicacion>(url, { headers: this.getHeaders() });
   }
 
+
+eliminar(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+}
+
+
+
+editar(id:number, publicacion: Publicacion): Observable<Publicacion> {
+  return this.http.put<Publicacion>(`${this.apiUrl}/${id}`, publicacion, { headers: this.getHeaders() });
+}
+
 }
