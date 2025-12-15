@@ -101,7 +101,7 @@ export class DetallePublicacionComponent implements OnInit {
     showCancelButton: true,
     confirmButtonColor: '#d33',
     cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Sí, eliminar',
+    confirmButtonText: 'Si, eliminar',
     cancelButtonText: 'Cancelar'
   }).then((result) => {
     if (result.isConfirmed) {

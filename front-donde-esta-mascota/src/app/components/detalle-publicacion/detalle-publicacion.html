@@ -19,89 +19,104 @@
   <!-- Contenido de la publicacion -->
   <div *ngIf="publicacion && !cargando" class="detalle-content">
     
-    <!-- Encabezado -->
-    <div class="detalle-header">
-      <h1>{{ publicacion.nombre }}</h1>
-      <span class="estado-badge" [ngClass]="'estado-' + publicacion.estado">
-        {{ publicacion.estado }}
-      </span>
-    </div>
+    <!-- ✅ NUEVO: Layout con grid para contenido principal y panel lateral -->
+    <div class="detalle-layout">
+      
+      <!-- Contenido principal (izquierda) -->
+      <div class="contenido-principal">
+        
+        <!-- Encabezado -->
+        <div class="detalle-header">
+          <h1>{{ publicacion.nombre }}</h1>
+          <span class="estado-badge" [ngClass]="'estado-' + publicacion.estado">
+            {{ publicacion.estado }}
+          </span>
+        </div>
 
-    <!-- Imagenes -->
-    <div class="imagenes-galeria" *ngIf="publicacion.imagenes64 && publicacion.imagenes64.length > 0">
-      <img [src]="publicacion.imagenes64[0]" [alt]="publicacion.nombre" class="imagen-principal">
-    </div>
-    <div *ngIf="!publicacion.imagenes64 || publicacion.imagenes64.length === 0" class="sin-imagen-detalle">
-      <p>Sin imagen disponible</p>
-    </div>
+        <!-- Imagenes -->
+        <div class="imagenes-galeria" *ngIf="publicacion.imagenes64 && publicacion.imagenes64.length > 0">
+          <img [src]="publicacion.imagenes64[0]" [alt]="publicacion.nombre" class="imagen-principal">
+        </div>
+        <div *ngIf="!publicacion.imagenes64 || publicacion.imagenes64.length === 0" class="sin-imagen-detalle">
+          <p>Sin imagen disponible</p>
+        </div>
 
-    <!-- Información principal -->
-    <div class="info-grid">
-      <div class="info-card">
-        <h3>Información de la mascota</h3>
-        <p><strong>Color:</strong> {{ publicacion.color }}</p>
-        <p><strong>Tamaño:</strong> {{ publicacion.tamanio || 'No especificado' }}</p>
-        <p><strong>Fecha:</strong> {{ publicacion.fecha }}</p>
-        <p><strong>Descripción:</strong> {{ publicacion.descripcion }}</p>
+        <!-- Información principal -->
+        <div class="info-grid">
+          <div class="info-card">
+            <h3>Información de la mascota</h3>
+            <p><strong>Color:</strong> {{ publicacion.color }}</p>
+            <p><strong>Tamaño:</strong> {{ publicacion.tamanio || 'No especificado' }}</p>
+            <p><strong>Fecha:</strong> {{ publicacion.fecha }}</p>
+            <p><strong>Descripción:</strong> {{ publicacion.descripcion }}</p>
+          </div>
+
+          <div class="info-card">
+            <h3>Ubicación</h3>
+            <p><strong>Provincia:</strong> {{ publicacion.provincia }}</p>
+            <p><strong>Localidad:</strong> {{ publicacion.localidad }}</p>
+            <p><strong>Calle:</strong> {{ publicacion.calle }} {{ publicacion.altura }}</p>
+          </div>
+
+          <div class="info-card" *ngIf="publicacion.autor">
+            <h3>Contacto</h3>
+            <p><strong>Nombre:</strong> {{ publicacion.autor.nombre }} {{ publicacion.autor.apellido }}</p>
+            <p><strong>Teléfono:</strong> {{ publicacion.telefono }}</p>
+            <p><strong>Email:</strong> {{ publicacion.autor.email }}</p>
+          </div>
+        </div>
+
+        <!-- Boton de accion principal -->
+        <div class="acciones-container">
+          <button class="btn-accion btn-avistamiento" (click)="agregarAvistamiento()">
+            Reportar un avistamiento
+          </button>
+        </div>
+
+        <!-- avistamientos -->
+        <div class="avistamientos-section" *ngIf="publicacion.avistamientos && publicacion.avistamientos.length > 0">
+          <h3>Avistamientos reportados ({{ publicacion.avistamientos.length }})</h3>
+          <div class="avistamiento-card" *ngFor="let avistamiento of publicacion.avistamientos">
+            <p><strong>Fecha:</strong> {{ avistamiento.fecha }}</p>
+            <p><strong>Descripción:</strong> {{ avistamiento.descripcion || 'Sin descripción' }}</p>
+          </div>
+        </div>
+
+        <div *ngIf="!publicacion.avistamientos || publicacion.avistamientos.length === 0" class="sin-avistamientos">
+          <p>Aún no hay avistamientos reportados para esta mascota</p>
+        </div>
+
       </div>
 
-      <div class="info-card">
-        <h3>Ubicación</h3>
-        <p><strong>Provincia:</strong> {{ publicacion.provincia }}</p>
-        <p><strong>Localidad:</strong> {{ publicacion.localidad }}</p>
-        <p><strong>Calle:</strong> {{ publicacion.calle }} {{ publicacion.altura }}</p>
-      </div>
+      <!-- Panel lateral derecho (solo si es autor) -->
+      <aside *ngIf="esAutor" class="panel-lateral">
+        <div class="panel-contenido">
+          <h3>Administrar publicación</h3>
+          <p class="panel-descripcion">Como autor de esta publicación, podés editarla o eliminarla.</p>
+          
+          <div class="panel-acciones">
+            <button class="btn-panel btn-panel-editar" (click)="editarPublicacion()">
+              <span class="icono"></span>
+              <span>Editar publicación</span>
+            </button>
+            
+            <button 
+              class="btn-panel btn-panel-eliminar" 
+              (click)="eliminarPublicacion()"
+              [disabled]="eliminando">
+              <span class="icono"></span>
+              <span>{{ eliminando ? 'Eliminando...' : 'Eliminar publicación' }}</span>
+            </button>
+          </div>
+        </div>
+      </aside>
 
-      <div class="info-card" *ngIf="publicacion.autor">
-        <h3>Contacto</h3>
-        <p><strong>Nombre:</strong> {{ publicacion.autor.nombre }} {{ publicacion.autor.apellido }}</p>
-        <p><strong>Teléfono:</strong> {{ publicacion.telefono }}</p>
-        <p><strong>Email:</strong> {{ publicacion.autor.email }}</p>
-      </div>
-    </div>
-
-    <!-- Boton de acción principal -->
-    <div class="acciones-container">
-      <button class="btn-accion btn-avistamiento" (click)="agregarAvistamiento()">
-        Reportar un avistamiento
-      </button>
-    </div>
-
-    <!-- Acciones del autor (solo visible si es el dueño) -->
-    <div *ngIf="esAutor" class="acciones-autor">
-      <h3>Administrar publicación</h3>
-      <div class="botones-autor">
-        <button class="btn-accion btn-editar" (click)="editarPublicacion()">
-           Editar
-        </button>
-        <button 
-          class="btn-accion btn-eliminar" 
-          (click)="eliminarPublicacion()"
-          [disabled]="eliminando">
-          {{ eliminando ? ' Eliminando...' : 'Eliminar' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- avistamientos -->
-    <div class="avistamientos-section" *ngIf="publicacion.avistamientos && publicacion.avistamientos.length > 0">
-      <h3>Avistamientos reportados ({{ publicacion.avistamientos.length }})</h3>
-      <div class="avistamiento-card" *ngFor="let avistamiento of publicacion.avistamientos">
-        <p><strong>Fecha:</strong> {{ avistamiento.fecha }}</p>
-        <p><strong>Descripción:</strong> {{ avistamiento.descripcion || 'Sin descripción' }}</p>
-      </div>
-    </div>
-
-    <div *ngIf="!publicacion.avistamientos || publicacion.avistamientos.length === 0" class="sin-avistamientos">
-      <p>Aún no hay avistamientos reportados para esta mascota</p>
     </div>
 
   </div>
 </div>
 
-
-
-<!-- MODAL DE EDITAR-->
+<!-- MODAL DE EDITAR -->
 <div class="modal-overlay" *ngIf="mostrarModalEditar">
   <div class="modal-content">
     <button class="cerrar-modal" (click)="cerrarModalEditar()">×</button>
@@ -144,17 +159,17 @@
 
     <div class="form-group">
       <label>Calle</label>
-      <input type="number" [(ngModel)]="publicacionEditada.calle" />
+      <input type="text" [(ngModel)]="publicacionEditada.calle" />
     </div>
 
     <div class="form-group">
       <label>Altura</label>
-      <input type="number" [(ngModel)]="publicacionEditada.altura" />
+      <input type="text" [(ngModel)]="publicacionEditada.altura" />
     </div>
 
     <div class="modal-botones">
       <button class="btn-guardar" (click)="guardarEdicion()" [disabled]="guardando">
-        {{ guardando ? '⏳ Guardando...' : '💾 Guardar' }}
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
       </button>
       <button class="btn-cancelar" (click)="cerrarModalEditar()">Cancelar</button>
     </div>

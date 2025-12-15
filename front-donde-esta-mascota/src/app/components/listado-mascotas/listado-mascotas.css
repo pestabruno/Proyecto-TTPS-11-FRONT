@@ -286,3 +286,104 @@ h1 {
     min-width: 35px;
   }
 }
+
+
+/* Modal de Filtros */
+.modal-filtros {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.filtros-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.filtro-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filtro-group label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: normal !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.filtro-select {
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.filtro-select:focus {
+  outline: none;
+  border-color: #9370DB;
+}
+
+.filtros-acciones {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-limpiar,
+.btn-aplicar {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-limpiar {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.btn-limpiar:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-aplicar {
+  background-color: #9370DB;
+  color: white;
+}
+
+.btn-aplicar:hover {
+  background-color: #7B5CBF;
+}
+
+.filtros-activos {
+  color: #9370DB;
+  font-size: 0.9rem;
+}

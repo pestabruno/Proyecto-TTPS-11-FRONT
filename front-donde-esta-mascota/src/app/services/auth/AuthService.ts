@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private baseUrl = 'http://localhost:8080/api';
+  
   constructor(private http: HttpClient) {}
 
   login(credentials: any): Observable<AuthResponse> {
@@ -13,7 +14,6 @@ export class AuthService {
 
   getUsuarioData(userId: number): Observable<any> {
     const url = `${this.baseUrl}/usuarios/${userId}`;
-
     const token = localStorage.getItem('jwt_token');
 
     let headers = new HttpHeaders();
@@ -31,5 +31,27 @@ export class AuthService {
 
   register(userData: any): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/register`, userData);
+  }
+
+  // ✅ CORREGIDO: Usar 'user_id' en lugar de 'userId'
+  getUsuarioId(): number | null {
+    const userId = localStorage.getItem('user_id'); // ← Cambio aquí
+    return userId ? parseInt(userId, 10) : null;
+  }
+
+  // ✅ Verificar si hay usuario logueado
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('jwt_token') && !!localStorage.getItem('user_id'); // ← Y aquí
+  }
+
+  // ✅ Obtener token
+  getToken(): string | null {
+    return localStorage.getItem('jwt_token');
+  }
+
+  // ✅ Cerrar sesión
+  logout(): void {
+    localStorage.removeItem('jwt_token');
+    localStorage.removeItem('user_id'); // ← Y aquí
   }
 }

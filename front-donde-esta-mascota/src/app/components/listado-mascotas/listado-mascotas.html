@@ -1,30 +1,105 @@
 <div class="container">
   <h1>Mascotas Perdidas</h1>
   
-  <button class="filtros-btn">Filtros</button>
+  <button class="filtros-btn" (click)="toggleModal()">Filtros</button>
 
-  <!-- Información de resultados -->
+  <!-- Modal de Filtros -->
+  <div class="modal-overlay" *ngIf="mostrarFiltros" (click)="toggleModal()">
+    <div class="modal-filtros" (click)="$event.stopPropagation()">
+      <button class="cerrar-modal" (click)="toggleModal()">×</button>
+      
+      <h2>Filtros</h2>
+      
+      <div class="filtros-contenido">
+        <!-- ✅ CAMBIO: Usar filtrosTemporales en lugar de filtros -->
+        
+        <!-- Filtro: Mis Publicaciones -->
+        <div class="filtro-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="filtrosTemporales.soloMisPublicaciones">
+            <span>Ver solo mis publicaciones</span>
+          </label>
+        </div>
+
+        <!-- Filtro: Estado -->
+        <div class="filtro-group">
+          <label>Estado</label>
+          <select 
+            [(ngModel)]="filtrosTemporales.estado" 
+            class="filtro-select">
+            <option value="">Todos</option>
+            <option value="PERDIDO_PROPIO">Perdido (propio)</option>
+            <option value="PERDIDO_AJENO">Perdido (ajeno)</option>
+            <option value="RECUPERADO">Recuperado</option>
+          </select>
+        </div>
+
+        <!-- Filtro: Provincia -->
+        <div class="filtro-group">
+          <label>Provincia</label>
+          <select 
+            [(ngModel)]="filtrosTemporales.provincia" 
+            class="filtro-select">
+            <option value="">Todas</option>
+            <option value="Buenos Aires">Buenos Aires</option>
+            <option value="Córdoba">Córdoba</option>
+            <option value="Santa Fe">Santa Fe</option>
+            <option value="Mendoza">Mendoza</option>
+          </select>
+        </div>
+
+        <!-- Filtro: Tamaño -->
+        <div class="filtro-group">
+          <label>Tamaño</label>
+          <select 
+            [(ngModel)]="filtrosTemporales.tamanio" 
+            class="filtro-select">
+            <option value="">Todos</option>
+            <option value="Chico">Chico</option>
+            <option value="Mediano">Mediano</option>
+            <option value="Grande">Grande</option>
+          </select>
+        </div>
+
+        <!-- Botones -->
+        <div class="filtros-acciones">
+          <button class="btn-limpiar" (click)="limpiarFiltros()">
+            Limpiar filtros
+          </button>
+          <!-- ✅ CAMBIO: Llamar a guardarFiltros() en lugar de toggleModal() -->
+          <button class="btn-aplicar" (click)="guardarFiltros()">
+            Aplicar filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resto del HTML sin cambios... -->
+  
   <div class="info-resultados" *ngIf="!cargando && !error">
     <p>
       Mostrando 
       <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong> - 
-      <strong>{{ Math.min(paginaActual * itemsPorPagina, publicaciones.length) }}</strong> 
-      de <strong>{{ publicaciones.length }}</strong> publicaciones
+      <strong>{{ Math.min(paginaActual * itemsPorPagina, publicacionesFiltradas.length) }}</strong> 
+      de <strong>{{ publicacionesFiltradas.length }}</strong> publicaciones
+      <span *ngIf="hayFiltrosActivos()" class="filtros-activos">
+        ({{ publicaciones.length }} totales)
+      </span>
     </p>
   </div>
 
-  <!-- Mensaje de carga -->
   <div *ngIf="cargando" class="mensaje-carga">
     <p>Cargando publicaciones...</p>
   </div>
 
-  <!-- Mensaje de error -->
   <div *ngIf="error && !cargando" class="mensaje-error">
     <p>{{ error }}</p>
     <button (click)="cargarPublicaciones()">Reintentar</button>
   </div>
   
-  <!-- Grid de publicaciones - USAR publicacionesPaginadas en lugar de publicaciones -->
   <div *ngIf="!cargando && !error && publicacionesPaginadas.length > 0" class="grid">
     <div *ngFor="let pub of publicacionesPaginadas" class="card">
       <div class="card-image">
@@ -39,6 +114,7 @@
           <p class="info-item"><strong>Nombre:</strong> {{ pub.nombre }}</p>
           <p class="info-item"><strong>Color:</strong> {{ pub.color }}</p>
           <p class="info-item"><strong>Tamaño:</strong> {{ pub.tamanio || 'No especificado' }}</p>
+          <p class="info-item"><strong>Estado:</strong> {{ formatearEstado(pub.estado) }}</p>
         </div>
         
         <button class="ver-detalle-btn" (click)="verDetalle(pub.id)">
@@ -48,7 +124,6 @@
     </div>
   </div>
 
-  <!-- Controles de paginación -->
   <div class="paginacion" *ngIf="!cargando && !error && totalPaginas > 1">
     <button 
       class="btn-pagina" 
@@ -91,8 +166,8 @@
     </button>
   </div>
 
-  <!-- Mensaje si no hay publicaciones -->
-  <div *ngIf="!cargando && !error && publicaciones.length === 0" class="sin-publicaciones">
-    <p>No hay publicaciones disponibles</p>
+  <div *ngIf="!cargando && !error && publicacionesFiltradas.length === 0" class="sin-publicaciones">
+    <p>No hay publicaciones que coincidan con los filtros</p>
+    <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar filtros</button>
   </div>
 </div>
