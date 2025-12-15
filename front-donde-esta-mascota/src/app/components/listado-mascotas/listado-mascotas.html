@@ -1,15 +1,98 @@
 <div class="container">
-  <h1> Mascotas Perdidas</h1>
+  <h1>Mascotas Perdidas</h1>
+  
+  <button class="filtros-btn">Filtros</button>
 
-  <div class="grid">
-    <div *ngFor="let pub of publicaciones" class="card">
-      <img [src]="pub.imagenes64[0]" [alt]="pub.nombre">
-<!-- Cambiar de imagenesUrls[0] a imagenes64[0] -->
-      <h3>{{ pub.nombre }}</h3>
-      <p>{{ pub.descripcion }}</p>
-      <p><strong>Color:</strong> {{ pub.color }}</p>
-      <p><strong>Tamaño:</strong> {{ pub.tamanio }}</p>
-      <p><strong>Contacto:</strong> {{ pub.telefono }}</p>
+  <!-- Información de resultados -->
+  <div class="info-resultados" *ngIf="!cargando && !error">
+    <p>
+      Mostrando 
+      <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong> - 
+      <strong>{{ Math.min(paginaActual * itemsPorPagina, publicaciones.length) }}</strong> 
+      de <strong>{{ publicaciones.length }}</strong> publicaciones
+    </p>
+  </div>
+
+  <!-- Mensaje de carga -->
+  <div *ngIf="cargando" class="mensaje-carga">
+    <p>Cargando publicaciones...</p>
+  </div>
+
+  <!-- Mensaje de error -->
+  <div *ngIf="error && !cargando" class="mensaje-error">
+    <p>{{ error }}</p>
+    <button (click)="cargarPublicaciones()">Reintentar</button>
+  </div>
+  
+  <!-- Grid de publicaciones - USAR publicacionesPaginadas en lugar de publicaciones -->
+  <div *ngIf="!cargando && !error && publicacionesPaginadas.length > 0" class="grid">
+    <div *ngFor="let pub of publicacionesPaginadas" class="card">
+      <div class="card-image">
+        <img [src]="pub.imagenes64[0]" [alt]="pub.nombre" *ngIf="pub.imagenes64 && pub.imagenes64.length > 0">
+        <div class="sin-imagen" *ngIf="!pub.imagenes64 || pub.imagenes64.length === 0">
+          Sin imagen
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="card-info">
+          <p class="info-item"><strong>Nombre:</strong> {{ pub.nombre }}</p>
+          <p class="info-item"><strong>Color:</strong> {{ pub.color }}</p>
+          <p class="info-item"><strong>Tamaño:</strong> {{ pub.tamanio || 'No especificado' }}</p>
+        </div>
+        
+        <button class="ver-detalle-btn" (click)="verDetalle(pub.id)">
+          Ver detalle
+        </button>
+      </div>
     </div>
+  </div>
+
+  <!-- Controles de paginación -->
+  <div class="paginacion" *ngIf="!cargando && !error && totalPaginas > 1">
+    <button 
+      class="btn-pagina" 
+      (click)="paginaAnterior()" 
+      [disabled]="paginaActual === 1">
+      ← Anterior
+    </button>
+
+    <button 
+      *ngIf="paginaActual > 3"
+      class="btn-pagina"
+      (click)="irAPagina(1)">
+      1
+    </button>
+
+    <span *ngIf="paginaActual > 3" class="puntos-suspension">...</span>
+
+    <button 
+      *ngFor="let pagina of getPaginasArray()"
+      class="btn-pagina"
+      [class.activa]="pagina === paginaActual"
+      (click)="irAPagina(pagina)">
+      {{ pagina }}
+    </button>
+
+    <span *ngIf="paginaActual < totalPaginas - 2" class="puntos-suspension">...</span>
+
+    <button 
+      *ngIf="paginaActual < totalPaginas - 2"
+      class="btn-pagina"
+      (click)="irAPagina(totalPaginas)">
+      {{ totalPaginas }}
+    </button>
+
+    <button 
+      class="btn-pagina" 
+      (click)="paginaSiguiente()" 
+      [disabled]="paginaActual === totalPaginas">
+      Siguiente →
+    </button>
+  </div>
+
+  <!-- Mensaje si no hay publicaciones -->
+  <div *ngIf="!cargando && !error && publicaciones.length === 0" class="sin-publicaciones">
+    <p>No hay publicaciones disponibles</p>
   </div>
 </div>

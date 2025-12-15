@@ -1,0 +1,98 @@
+<!-- detalle-publicacion.component.html -->
+<div class="detalle-container">
+  
+  <!-- Botón volver -->
+  <button class="btn-volver" (click)="volver()">
+    ← Volver al listado
+  </button>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="mensaje-carga">
+    <p>Cargando publicación...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !cargando" class="mensaje-error">
+    <p>{{ error }}</p>
+    <button (click)="volver()">Volver al listado</button>
+  </div>
+
+  <!-- Contenido de la publicación -->
+  <div *ngIf="publicacion && !cargando" class="detalle-content">
+    
+    <!-- Encabezado -->
+    <div class="detalle-header">
+      <h1>{{ publicacion.nombre }}</h1>
+      <span class="estado-badge" [ngClass]="'estado-' + publicacion.estado">
+        {{ publicacion.estado }}
+      </span>
+    </div>
+
+    <!-- Imágenes -->
+    <div class="imagenes-galeria" *ngIf="publicacion.imagenes64 && publicacion.imagenes64.length > 0">
+      <img [src]="publicacion.imagenes64[0]" [alt]="publicacion.nombre" class="imagen-principal">
+    </div>
+    <div *ngIf="!publicacion.imagenes64 || publicacion.imagenes64.length === 0" class="sin-imagen-detalle">
+      <p>Sin imagen disponible</p>
+    </div>
+
+    <!-- Información principal -->
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>Información de la mascota</h3>
+        <p><strong>Color:</strong> {{ publicacion.color }}</p>
+        <p><strong>Tamaño:</strong> {{ publicacion.tamanio || 'No especificado' }}</p>
+        <p><strong>Fecha:</strong> {{ publicacion.fecha }}</p>
+        <p><strong>Descripción:</strong> {{ publicacion.descripcion }}</p>
+      </div>
+
+      <div class="info-card">
+        <h3>Ubicación</h3>
+        <p><strong>Provincia:</strong> {{ publicacion.provincia }}</p>
+        <p><strong>Localidad:</strong> {{ publicacion.localidad }}</p>
+        <p><strong>Calle:</strong> {{ publicacion.calle }} {{ publicacion.altura }}</p>
+      </div>
+
+      <div class="info-card" *ngIf="publicacion.autor">
+        <h3>Contacto</h3>
+        <p><strong>Nombre:</strong> {{ publicacion.autor.nombre }} {{ publicacion.autor.apellido }}</p>
+        <p><strong>Teléfono:</strong> {{ publicacion.telefono }}</p>
+        <p><strong>Email:</strong> {{ publicacion.autor.email }}</p>
+      </div>
+    </div>
+
+    <!-- Botón de acción principal -->
+    <div class="acciones-container">
+      <button class="btn-accion btn-avistamiento" (click)="agregarAvistamiento()">
+         Reportar un avistamiento
+      </button>
+    </div>
+
+    <!-- Sección de avistamientos -->
+    <div class="avistamientos-section" *ngIf="publicacion.avistamientos && publicacion.avistamientos.length > 0">
+      <h3>Avistamientos reportados ({{ publicacion.avistamientos.length }})</h3>
+      <div class="avistamiento-card" *ngFor="let avistamiento of publicacion.avistamientos">
+        <p><strong>Fecha:</strong> {{ avistamiento.fecha }}</p>
+        <p><strong>Descripción:</strong> {{ avistamiento.descripcion || 'Sin descripción' }}</p>
+      </div>
+    </div>
+
+    <div *ngIf="!publicacion.avistamientos || publicacion.avistamientos.length === 0" class="sin-avistamientos">
+      <p>Aún no hay avistamientos reportados para esta mascota</p>
+    </div>
+
+    <!-- Sección comentada para funcionalidades futuras -->
+    <!--
+    <div *ngIf="esAutor" class="acciones-autor">
+      <h3>Acciones del propietario</h3>
+      <button class="btn-accion btn-editar" (click)="editarPublicacion()">
+        ✏️ Editar publicación
+      </button>
+      <button class="btn-accion btn-eliminar" (click)="eliminarPublicacion()">
+        🗑️ Eliminar publicación
+      </button>
+    </div>
+    -->
+
+  </div>
+</div>

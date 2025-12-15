@@ -3,23 +3,37 @@ import { LoginComponent } from './components/auth/login/login';
 import { RegisterComponent } from './components/auth/register/register';
 import { HomeComponent } from './components/home/home';
 import { ListadoMascotasComponent } from './components/listado-mascotas/listado-mascotas';
+import { DetallePublicacionComponent } from './components/detalle-publicacion/detalle-publicacion';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'listado-mascotas',
+    redirectTo: 'listado',
     pathMatch: 'full'
   },
   {
-    path: 'listado-mascotas',  // ⚠️ Minúsculas (convención)
+    path: 'listado',  
     component: ListadoMascotasComponent,
     title: 'Mascotas Perdidas',
+  },
+  {
+    path: 'publicacion/:id',  
+    component: DetallePublicacionComponent,
+    title: 'Detalle de Publicación',
   },
   {
     path: 'login',
     component: LoginComponent,
     title: 'Iniciar Sesión',
   },
-  { path: 'register', component: RegisterComponent },
-  { path: 'home', component: HomeComponent },
+  {
+    path: 'register',
+    component: RegisterComponent,
+    title: 'Registro',
+  },
+  {
+    path: 'home',
+    component: HomeComponent,
+    title: 'Home',
+  },
 ];

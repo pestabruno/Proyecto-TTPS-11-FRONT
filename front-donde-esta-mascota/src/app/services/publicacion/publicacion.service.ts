@@ -33,4 +33,9 @@ export class PublicacionService {
   }
 
 
+  obtenerPorId(id: number): Observable<Publicacion> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.get<Publicacion>(url, { headers: this.getHeaders() });
+  }
+
 }
