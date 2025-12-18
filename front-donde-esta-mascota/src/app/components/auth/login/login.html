@@ -50,6 +50,10 @@
         >
           Entrar
         </button>
+                <!-- Agregar esto -->
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
       </form>
     </mat-card-content>
 
