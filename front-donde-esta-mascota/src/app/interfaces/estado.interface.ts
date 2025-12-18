@@ -22,6 +22,8 @@ export interface UsuarioLogueado {
   avistamientos: Avistamiento[]; // Lista de avistamientos del usuario (podría ser un array de IDs para optimizar)
 }
 
+
+
 // Estructura de una Publicación
 export interface Publicacion {
   id: number;
@@ -31,7 +33,7 @@ export interface Publicacion {
   fecha: string;
   descripcion: string;
   telefono: string;
-  estado: 'PERDIDO_PROPIO' | 'ENCONTRADO';
+  estado: 'PERDIDO_PROPIO' | 'PERDIDO_AJENO' | 'RECUPERADO' | 'ADOPTADO';  // ✅
   imagenes64: string[];  // ⚠️ Cambiar de imagenesUrls a imagenes64
   provincia: string;
   localidad: string;
