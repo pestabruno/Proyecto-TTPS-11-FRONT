@@ -147,5 +147,73 @@ textarea {
   font-size: 1.1rem;
 }
 
-/* Agregar después de los estilos existentes */
 
+/* Botones del formulario */
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.btn-cancelar {
+  flex: 1;
+  padding: 14px 24px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-cancelar:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.btn-cancelar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-publicar {
+  flex: 2;
+  padding: 14px 24px;
+  background-color: #9370DB;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-publicar:hover:not(:disabled) {
+  background-color: #7B5CBF;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(147, 112, 219, 0.4);
+}
+
+.btn-publicar:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsive para los botones */
+@media (max-width: 480px) {
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .btn-cancelar,
+  .btn-publicar {
+    flex: 1;
+    width: 100%;
+  }
+}

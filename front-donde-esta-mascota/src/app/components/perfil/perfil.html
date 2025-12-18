@@ -1,0 +1,213 @@
+<div class="perfil-container">
+  
+  <!-- Botón volver -->
+  <button class="btn-volver" (click)="volver()">
+    ← Volver
+  </button>
+
+  <!-- Estado de carga -->
+  <div *ngIf="cargando" class="mensaje-carga">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error && !cargando" class="mensaje-error">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <div *ngIf="exito" class="mensaje-exito">
+    <p>✓ {{ exito }}</p>
+  </div>
+
+  <!-- Contenido del perfil -->
+  <div *ngIf="usuario && !cargando" class="perfil-content">
+    
+    <div class="perfil-card">
+      
+      <!-- Header con foto y nombre -->
+      <div class="perfil-header">
+        <div class="foto-container">
+          <img [src]="getImagenUrl()" alt="Foto de perfil" class="foto-perfil">
+          <label *ngIf="modoEdicion" for="input-imagen" class="btn-cambiar-foto">
+            📷 Cambiar
+          </label>
+          <input 
+            type="file" 
+            id="input-imagen" 
+            accept="image/*"
+            (change)="onImagenSeleccionada($event)"
+            style="display: none;">
+        </div>
+        
+        <div class="info-principal">
+          <h1>{{ usuario.nombre }} {{ usuario.apellido }}</h1>
+          <p class="email">{{ usuario.email }}</p>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="perfil-acciones" *ngIf="!modoEdicion">
+        <button class="btn-editar" (click)="activarEdicion()">
+           Editar perfil
+        </button>
+        <button class="btn-password" (click)="abrirModalPassword()">
+           Cambiar contraseña
+        </button>
+      </div>
+
+      <!-- Formulario de edición -->
+      <div *ngIf="modoEdicion" class="formulario-edicion">
+        <h2>Editar información</h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input required
+              type="text" 
+              id="nombre" 
+              [(ngModel)]="usuarioEditado.nombre"
+              placeholder="Tu nombre">
+              
+          </div>
+          
+          <div class="form-group">
+            <label for="apellido">Apellido</label>
+            <input required
+              type="text" 
+              id="apellido" 
+              [(ngModel)]="usuarioEditado.apellido"
+              placeholder="Tu apellido">
+              
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input required
+              type="tel" 
+              id="telefono" 
+              [(ngModel)]="usuarioEditado.telefono"
+              placeholder="Ej: 11-4444-5555">
+              
+          </div>
+          
+          <div class="form-group">
+            <label for="provincia">Provincia</label>
+            <select id="provincia" [(ngModel)]="usuarioEditado.provincia">
+              <option value="">Seleccioná una provincia</option>
+              <option *ngFor="let prov of provincias" [value]="prov">{{ prov }}</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="localidad">Localidad</label>
+          <input required
+            type="text" 
+            id="localidad" 
+            [(ngModel)]="usuarioEditado.localidad"
+            placeholder="Ej: La Plata">
+         
+        </div>
+
+        <div class="form-actions">
+          <button 
+            class="btn-cancelar" 
+            (click)="cancelarEdicion()"
+            [disabled]="guardando">
+            Cancelar
+          </button>
+          <button 
+            class="btn-guardar" 
+            (click)="guardarCambios()"
+            [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Información del perfil (modo vista) -->
+      <div *ngIf="!modoEdicion" class="perfil-info">
+        <h2>Información personal</h2>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">DNI</span>
+            <span class="info-valor">{{ usuario.dni || 'No especificado' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Teléfono</span>
+            <span class="info-valor">{{ usuario.telefono || 'No especificado' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Provincia</span>
+            <span class="info-valor">{{ usuario.provincia || 'No especificada' }}</span>
+          </div>
+          
+          <div class="info-item">
+            <span class="info-label">Localidad</span>
+            <span class="info-valor">{{ usuario.localidad || 'No especificada' }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Modal cambiar contraseña -->
+<div *ngIf="mostrarModalPassword" class="modal-overlay" (click)="cerrarModalPassword()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="cerrar-modal" (click)="cerrarModalPassword()">×</button>
+    
+    <h2>Cambiar contraseña</h2>
+    
+    <div *ngIf="errorPassword" class="error-password">
+      {{ errorPassword }}
+    </div>
+    
+    <div class="form-group">
+      <label for="passwordActual">Contraseña actual</label>
+      <input 
+        type="password" 
+        id="passwordActual" 
+        [(ngModel)]="passwordActual"
+        placeholder="Ingresá tu contraseña actual">
+    </div>
+    
+    <div class="form-group">
+      <label for="passwordNueva">Nueva contraseña</label>
+      <input 
+        type="password" 
+        id="passwordNueva" 
+        [(ngModel)]="passwordNueva"
+        placeholder="Mínimo 6 caracteres">
+    </div>
+    
+    <div class="form-group">
+      <label for="passwordConfirmar">Confirmar nueva contraseña</label>
+      <input 
+        type="password" 
+        id="passwordConfirmar" 
+        [(ngModel)]="passwordConfirmar"
+        placeholder="Repetí la nueva contraseña">
+    </div>
+    
+    <div class="modal-botones">
+      <button class="btn-cancelar" (click)="cerrarModalPassword()">
+        Cancelar
+      </button>
+      <button 
+        class="btn-guardar" 
+        (click)="cambiarPassword()"
+        [disabled]="cambiandoPassword">
+        {{ cambiandoPassword ? 'Cambiando...' : 'Cambiar contraseña' }}
+      </button>
+    </div>
+  </div>
+</div>

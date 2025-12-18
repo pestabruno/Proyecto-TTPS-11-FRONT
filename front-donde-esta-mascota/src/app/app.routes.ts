@@ -5,6 +5,8 @@ import { HomeComponent } from './components/home/home';
 import { ListadoMascotasComponent } from './components/listado-mascotas/listado-mascotas';
 import { DetallePublicacionComponent } from './components/detalle-publicacion/detalle-publicacion';
 import { ReportarMascotaComponent } from './components/reportar-mascota/reportar-mascota';
+//import { authGuard } from './guards/auth.guard'
+import { PerfilComponent } from './components/perfil/perfil';
 export const routes: Routes = [
   {
     path: '',
@@ -40,5 +42,10 @@ export const routes: Routes = [
     path: 'reportar',
     component: ReportarMascotaComponent,
     title: 'Reportar Mascota',
+  },
+  {
+  path: 'perfil',
+  component: PerfilComponent,
+  //canActivate: [authGuard]  // si querés que solo usuarios logueados puedan acceder
   }
 ];

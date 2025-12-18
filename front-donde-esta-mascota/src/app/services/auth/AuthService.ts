@@ -33,25 +33,53 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.baseUrl}/register`, userData);
   }
 
-  // ✅ CORREGIDO: Usar 'user_id' en lugar de 'userId'
+  //  CORREGIDO: Usar 'user_id' en lugar de 'userId'
   getUsuarioId(): number | null {
     const userId = localStorage.getItem('user_id'); // ← Cambio aquí
     return userId ? parseInt(userId, 10) : null;
   }
 
-  // ✅ Verificar si hay usuario logueado
+  //  Verificar si hay usuario logueado
   isLoggedIn(): boolean {
     return !!localStorage.getItem('jwt_token') && !!localStorage.getItem('user_id'); // ← Y aquí
   }
 
-  // ✅ Obtener token
+  //  Obtener token
   getToken(): string | null {
     return localStorage.getItem('jwt_token');
   }
 
-  // ✅ Cerrar sesión
+  //  Cerrar sesión
   logout(): void {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_id'); // ← Y aquí
   }
+
+
+actualizarPerfil(userId: number, datos: any): Observable<any> {
+  const url = `${this.baseUrl}/usuarios/${userId}`;
+  const token = localStorage.getItem('jwt_token');
+  
+  let headers = new HttpHeaders();
+  if (token) {
+    headers = headers.set('Authorization', `Bearer ${token}`);
+  }
+  
+  return this.http.put<any>(url, datos, { headers });
+}
+
+cambiarPassword(userId: number, oldPassword: string, newPassword: string): Observable<any> {
+  const url = `${this.baseUrl}/usuarios/${userId}/cambiar-password`;
+  const token = localStorage.getItem('jwt_token');
+  
+  let headers = new HttpHeaders();
+  if (token) {
+    headers = headers.set('Authorization', `Bearer ${token}`);
+  }
+  
+  return this.http.put(url, { oldPassword, newPassword }, { 
+    headers,
+    responseType: 'text'  
+  });
+}
 }
