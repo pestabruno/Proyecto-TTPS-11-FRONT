@@ -88,12 +88,18 @@ export class LoginComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error durante la secuencia de login:', error);
-          // Si hay un token guardado previamente (por ejemplo, si falla la segunda llamada), se puede limpiar
           localStorage.removeItem('jwt_token');
-          this.errorMessage =
-            error.error?.message ||
-            'Error de autenticación o al obtener el perfil. Inténtalo de nuevo.';
-        },
+          localStorage.removeItem('user_id');
+          
+    
+          if (error.status === 401) {
+            this.errorMessage = 'Email o contraseña incorrectos';
+          } else if (error.status === 0) {
+            this.errorMessage = 'No se pudo conectar con el servidor';
+          } else {
+            this.errorMessage = error.error?.message || 'Error al iniciar sesión. Intentá de nuevo.';
+          }
+        }
       });
   }
 

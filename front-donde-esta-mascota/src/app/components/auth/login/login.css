@@ -125,3 +125,18 @@ mat-card h2 {
   text-align: center; /* Centra el texto del título "Crear Cuenta de Usuario" */
   margin-bottom: 20px;
 }
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+.login-card {
+  max-width: 450px;
+  width: 100%;
+  padding: 30px;
+}

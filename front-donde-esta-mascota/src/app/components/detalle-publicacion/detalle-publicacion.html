@@ -160,56 +160,171 @@
     <button class="cerrar-modal" (click)="cerrarModalEditar()">×</button>
     <h2>Editar publicación</h2>
     
-    <div class="form-group">
-      <label>Nombre</label>
-      <input type="text" [(ngModel)]="publicacionEditada.nombre" />
-    </div>
+    <form [formGroup]="editarForm" (ngSubmit)="guardarEdicion()">
+      
+      <!-- Nombre -->
+      <div class="form-group">
+        <label>Nombre <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="nombre"
+          [class.error]="hasError('nombre', 'required') || hasError('nombre', 'minlength')" />
+        <span class="error-message" *ngIf="editarForm.get('nombre')?.touched && editarForm.get('nombre')?.invalid">
+          {{ getErrorMessage('nombre') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Color</label>
-      <input type="text" [(ngModel)]="publicacionEditada.color" />
-    </div>
+      <!-- Color -->
+      <div class="form-group">
+        <label>Color <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="color"
+          [class.error]="hasError('color', 'required') || hasError('color', 'minlength')" />
+        <span class="error-message" *ngIf="editarForm.get('color')?.touched && editarForm.get('color')?.invalid">
+          {{ getErrorMessage('color') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Tamaño</label>
-      <input type="text" [(ngModel)]="publicacionEditada.tamanio" />
-    </div>
+      <!-- Tamaño (SELECT) -->
+      <div class="form-group">
+        <label>Tamaño <span class="required">*</span></label>
+        <select 
+          formControlName="tamanio"
+          [class.error]="hasError('tamanio', 'required')">
+          <option value="">Seleccioná un tamaño</option>
+          <option *ngFor="let tamanio of opcionesTamanio" [value]="tamanio">
+            {{ tamanio }}
+          </option>
+        </select>
+        <span class="error-message" *ngIf="editarForm.get('tamanio')?.touched && editarForm.get('tamanio')?.invalid">
+          {{ getErrorMessage('tamanio') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Descripción</label>
-      <textarea [(ngModel)]="publicacionEditada.descripcion" rows="3"></textarea>
-    </div>
+      <!-- Estado (SELECT CON REGLAS ACTUALIZADAS) -->
+      <div class="form-group">
+        <label>Estado <span class="required">*</span></label>
+        <select 
+          formControlName="estado"
+          [class.error]="hasError('estado', 'required')">
+          <option *ngFor="let estado of estadosPermitidos" [value]="estado.value">
+            {{ estado.label }}
+          </option>
+        </select>
+        <span class="error-message" *ngIf="editarForm.get('estado')?.touched && editarForm.get('estado')?.invalid">
+          {{ getErrorMessage('estado') }}
+        </span>
+        
+        <!-- Mensajes de ayuda contextuales según el estado -->
+        <small class="help-text" *ngIf="publicacion?.estado === 'PERDIDO_PROPIO'">
+          ℹ️ Podés cambiar el estado a "Recuperado" si encontraste a tu mascota
+        </small>
+        <small class="help-text" *ngIf="publicacion?.estado === 'PERDIDO_AJENO'">
+          ℹ️ Podés cambiar el estado a "Recuperado" o "Adoptado" según corresponda
+        </small>
+        <small class="help-text help-text-warning" *ngIf="publicacion?.estado === 'RECUPERADO'">
+          ⚠️ Si te equivocaste, podés revertir el estado a "Perdido propio" o "Perdido ajeno"
+        </small>
+        <small class="help-text help-text-info" *ngIf="publicacion?.estado === 'ADOPTADO'">
+          ✅ El estado "Adoptado" es definitivo y no puede modificarse
+        </small>
+      </div>
 
-    <div class="form-group">
-      <label>Teléfono</label>
-      <input type="text" [(ngModel)]="publicacionEditada.telefono" />
-    </div>
+      <!-- Descripción -->
+      <div class="form-group">
+        <label>Descripción <span class="required">*</span></label>
+        <textarea 
+          formControlName="descripcion" 
+          rows="3"
+          [class.error]="hasError('descripcion', 'required') || hasError('descripcion', 'minlength')">
+        </textarea>
+        <span class="error-message" *ngIf="editarForm.get('descripcion')?.touched && editarForm.get('descripcion')?.invalid">
+          {{ getErrorMessage('descripcion') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Provincia</label>
-      <input type="text" [(ngModel)]="publicacionEditada.provincia" />
-    </div>
+      <!-- Teléfono -->
+      <div class="form-group">
+        <label>Teléfono <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="telefono"
+          [class.error]="hasError('telefono', 'required') || hasError('telefono', 'pattern')" />
+        <span class="error-message" *ngIf="editarForm.get('telefono')?.touched && editarForm.get('telefono')?.invalid">
+          {{ getErrorMessage('telefono') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Localidad</label>
-      <input type="text" [(ngModel)]="publicacionEditada.localidad" />
-    </div>
+      <!-- Provincia (SELECT) -->
+      <div class="form-group">
+        <label>Provincia <span class="required">*</span></label>
+        <select 
+          formControlName="provincia"
+          [class.error]="hasError('provincia', 'required')">
+          <option value="">Seleccioná una provincia</option>
+          <option *ngFor="let provincia of opcionesProvincias" [value]="provincia">
+            {{ provincia }}
+          </option>
+        </select>
+        <span class="error-message" *ngIf="editarForm.get('provincia')?.touched && editarForm.get('provincia')?.invalid">
+          {{ getErrorMessage('provincia') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Calle</label>
-      <input type="text" [(ngModel)]="publicacionEditada.calle" />
-    </div>
+      <!-- Localidad -->
+      <div class="form-group">
+        <label>Localidad <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="localidad"
+          [class.error]="hasError('localidad', 'required') || hasError('localidad', 'minlength')" />
+        <span class="error-message" *ngIf="editarForm.get('localidad')?.touched && editarForm.get('localidad')?.invalid">
+          {{ getErrorMessage('localidad') }}
+        </span>
+      </div>
 
-    <div class="form-group">
-      <label>Altura</label>
-      <input type="text" [(ngModel)]="publicacionEditada.altura" />
-    </div>
+      <!-- Calle -->
+      <div class="form-group">
+        <label>Calle <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="calle"
+          [class.error]="hasError('calle', 'required') || hasError('calle', 'minlength')" />
+        <span class="error-message" *ngIf="editarForm.get('calle')?.touched && editarForm.get('calle')?.invalid">
+          {{ getErrorMessage('calle') }}
+        </span>
+      </div>
 
-    <div class="modal-botones">
-      <button class="btn-guardar" (click)="guardarEdicion()" [disabled]="guardando">
-        {{ guardando ? 'Guardando...' : 'Guardar' }}
-      </button>
-      <button class="btn-cancelar" (click)="cerrarModalEditar()">Cancelar</button>
-    </div>
+      <!-- Altura -->
+      <div class="form-group">
+        <label>Altura <span class="required">*</span></label>
+        <input 
+          type="text" 
+          formControlName="altura"
+          [class.error]="hasError('altura', 'required') || hasError('altura', 'pattern')" />
+        <span class="error-message" *ngIf="editarForm.get('altura')?.touched && editarForm.get('altura')?.invalid">
+          {{ getErrorMessage('altura') }}
+        </span>
+      </div>
+
+      <!-- Botones -->
+      <div class="modal-botones">
+        <button 
+          type="submit" 
+          class="btn-guardar" 
+          [disabled]="editarForm.invalid || guardando">
+          {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+        <button 
+          type="button" 
+          class="btn-cancelar" 
+          (click)="cerrarModalEditar()"
+          [disabled]="guardando">
+          Cancelar
+        </button>
+      </div>
+
+    </form>
   </div>
 </div>

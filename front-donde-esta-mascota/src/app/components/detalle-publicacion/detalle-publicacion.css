@@ -522,3 +522,210 @@
 .cerrar-modal:hover {
   color: #333;
 }
+
+
+/* ========================================
+   ESTILOS ADICIONALES PARA MODAL DE EDICIÓN
+   ======================================== */
+
+/* Campos de formulario con error */
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #e74c3c;
+  background-color: #fff5f5;
+}
+
+/* Mensajes de error */
+.error-message {
+  display: block;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  font-weight: 500;
+}
+
+/* Texto de ayuda (debajo del select de estado) */
+.help-text {
+  display: block;
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-style: italic;
+}
+
+/* Asterisco obligatorio */
+.required {
+  color: #e74c3c;
+  margin-left: 0.2rem;
+}
+
+/* Selectores mejorados */
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-group select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Inputs mejorados */
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Labels mejorados */
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Botones del modal */
+.modal-botones {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: flex-end;
+}
+
+.btn-guardar {
+  padding: 0.75rem 1.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-guardar:hover:not(:disabled) {
+  background-color: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+}
+
+.btn-guardar:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-cancelar {
+  padding: 0.75rem 1.5rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancelar:hover:not(:disabled) {
+  background-color: #5a6268;
+  transform: translateY(-1px);
+}
+
+.btn-cancelar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Espaciado entre grupos de formulario */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+/* Animación para mensajes de error */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-message,
+.help-text {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* ========================================
+   ESTILOS PARA MENSAJES DE AYUDA MEJORADOS
+   ======================================== */
+
+/* Texto de ayuda base */
+.help-text {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-style: italic;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #6c757d;
+}
+
+/* Mensaje de ayuda tipo warning (para reversiones) */
+.help-text-warning {
+  background-color: #fff3cd;
+  border-left-color: #f0ad4e;
+  color: #856404;
+}
+
+/* Mensaje de ayuda tipo info (para estados definitivos) */
+.help-text-info {
+  background-color: #d1ecf1;
+  border-left-color: #17a2b8;
+  color: #0c5460;
+}
+
+/* Animación suave al aparecer */
+.help-text {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
