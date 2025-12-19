@@ -30,6 +30,7 @@ export class ListadoMascotasComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
 
   publicaciones: Publicacion[] = [];
+  resultado: Publicacion[] = [];
   publicacionesFiltradas: Publicacion[] = [];
   publicacionesPaginadas: Publicacion[] = [];
 
@@ -68,13 +69,14 @@ export class ListadoMascotasComponent implements OnInit, OnDestroy {
   }
 
   aplicarFiltros(): void {
-    this.publicacionesFiltradas = this.publicaciones.filter((pub) => {
+    this.resultado = this.publicaciones.filter((pub) => {
       if (this.filtros.soloMisPublicaciones && pub.autor.id !== this.usuarioIdActual) return false;
       if (this.filtros.estado && pub.estado !== this.filtros.estado) return false;
       if (this.filtros.provincia && pub.provincia !== this.filtros.provincia) return false;
       if (this.filtros.tamanio && pub.tamanio !== this.filtros.tamanio) return false;
       return true;
     });
+    this.publicacionesFiltradas = this.resultado.sort((a, b) => b.id - a.id);
     this.paginaActual = 1;
     this.calcularPaginacion();
     this.actualizarPagina();

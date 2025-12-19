@@ -18,6 +18,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private map!: L.Map;
   private markersLayer = L.layerGroup();
   private estadoSub?: Subscription;
+  private mapaCentrado = false;
 
   private fixMarkerIcons(): void {
     const iconDefault = L.icon({
@@ -44,7 +45,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private initMap(): void {
-    this.map = L.map('map').setView([-34.9214, -57.9545], 13);
+    const estado = this.estadoApi.obtenerValorActual();
+
+    const coordsIniciales: L.LatLngExpression =
+      estado.usuario?.latitud && estado.usuario?.longitud
+        ? [estado.usuario.latitud, estado.usuario.longitud]
+        : [-34.9214, -57.9545];
+
+    this.map = L.map('map').setView(coordsIniciales, 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
@@ -59,15 +67,32 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private suscribirAEstado(): void {
     this.estadoSub = this.estadoApi.estado$.subscribe((estado: AppEstado) => {
-      const conGeo = estado.publicacionesGlobales.filter((p) => p.latitud && p.longitud);
+      if (!this.map) return;
 
-      if (this.map) {
-        if (estado.usuario?.latitud && estado.usuario?.longitud) {
-          this.map.setView([estado.usuario.latitud, estado.usuario.longitud], 13);
-        }
-        this.actualizarMarcadores(conGeo);
-      } else {
-        setTimeout(() => this.suscribirAEstado(), 100);
+      // --- LOGS DE DEPURACIÓN ---
+      console.log('--- Actualización de Estado en Mapa ---');
+      console.log('Total publicaciones:', estado.publicacionesGlobales.length);
+
+      const conGeo = estado.publicacionesGlobales.filter((p) => p.latitud && p.longitud);
+      console.log('Publicaciones con Coordenadas:', conGeo.length);
+
+      if (conGeo.length > 0) {
+        console.table(
+          conGeo.map((p) => ({ id: p.id, calle: p.calle, lat: p.latitud, lon: p.longitud }))
+        );
+      }
+      // --------------------------
+
+      this.actualizarMarcadores(conGeo);
+
+      if (estado.usuario?.latitud && estado.usuario?.longitud && !this.mapaCentrado) {
+        console.log(
+          'Centrando mapa en el usuario:',
+          estado.usuario.latitud,
+          estado.usuario.longitud
+        );
+        this.map.setView([estado.usuario.latitud, estado.usuario.longitud], 13);
+        this.mapaCentrado = true;
       }
     });
   }
@@ -98,10 +123,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       marker.bindPopup(popupContent);
 
       marker.on('popupopen', () => {
-        const btn = document.getElementById(`btn-map-${pub.id}`);
-        if (btn) {
-          btn.onclick = () => this.router.navigate(['/publicacion', pub.id]);
-        }
+        setTimeout(() => {
+          const btn = document.getElementById(`btn-map-${pub.id}`);
+          if (btn) {
+            btn.onclick = () => this.router.navigate(['/publicacion', pub.id]);
+          }
+        }, 10);
       });
 
       this.markersLayer.addLayer(marker);

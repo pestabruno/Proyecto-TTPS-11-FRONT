@@ -94,6 +94,9 @@
             <p><strong>Provincia:</strong> {{ publicacion.provincia }}</p>
             <p><strong>Localidad:</strong> {{ publicacion.localidad }}</p>
             <p><strong>Calle:</strong> {{ publicacion.calle }} {{ publicacion.altura }}</p>
+            <button type="button" class="btn-ver-mapa" (click)="abrirModalMapa()">
+              <span>📍</span> Ver Mapa y Avistamientos
+            </button>
           </div>
 
           <div class="info-card" *ngIf="publicacion.autor">
@@ -326,5 +329,27 @@
       </div>
 
     </form>
+  </div>
+  <div class="modal-overlay-mapa" *ngIf="abrirModalMapa">
+    <div class="modal-content-mapa">
+  
+      <div class="modal-header">
+        <h2>Ubicación de {{ publicacion?.nombre }}</h2>
+        <button class="cerrar-x" (click)="cerrarModalMapa()" title="Cerrar mapa">×</button>
+      </div>
+  
+      <div class="map-wrapper">
+        <app-mapa-detalle *ngIf="publicacion" [lat]="+(publicacion?.latitud ?? 0)" [lng]="+(publicacion?.longitud ?? 0)"
+          [nombreMascota]="publicacion?.nombre || ''" [avistamientos]="publicacion?.avistamientos || []">
+        </app-mapa-detalle>
+      </div>
+  
+      <div class="modal-botones">
+        <button type="button" class="btn-cancelar" style="width: 100%; margin-top: 15px;" (click)="cerrarModalMapa()">
+          Cerrar Vista de Mapa
+        </button>
+      </div>
+  
+    </div>
   </div>
 </div>

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/AuthService';
+import { EstadoApiService } from '../../services/estado-api';
 
 interface Usuario {
   id: number;
@@ -30,21 +31,20 @@ interface UsuarioUpdate {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './perfil.html',
-  styleUrls: ['./perfil.css']
+  styleUrls: ['./perfil.css'],
 })
 export class PerfilComponent implements OnInit {
-
   usuario: Usuario | null = null;
   usuarioEditado: UsuarioUpdate = {};
-  
+
   cargando: boolean = true;
   guardando: boolean = false;
   error: string | null = null;
   exito: string | null = null;
-  
+
   modoEdicion: boolean = false;
   mostrarModalPassword: boolean = false;
-  
+
   // Para cambio de contraseña
   passwordActual: string = '';
   passwordNueva: string = '';
@@ -57,17 +57,37 @@ export class PerfilComponent implements OnInit {
   imagenFile: File | null = null;
 
   provincias: string[] = [
-    'Buenos Aires', 'CABA', 'Catamarca', 'Chaco', 'Chubut', 'Córdoba',
-    'Corrientes', 'Entre Ríos', 'Formosa', 'Jujuy', 'La Pampa', 'La Rioja',
-    'Mendoza', 'Misiones', 'Neuquén', 'Río Negro', 'Salta', 'San Juan',
-    'San Luis', 'Santa Cruz', 'Santa Fe', 'Santiago del Estero',
-    'Tierra del Fuego', 'Tucumán'
+    'Buenos Aires',
+    'CABA',
+    'Catamarca',
+    'Chaco',
+    'Chubut',
+    'Córdoba',
+    'Corrientes',
+    'Entre Ríos',
+    'Formosa',
+    'Jujuy',
+    'La Pampa',
+    'La Rioja',
+    'Mendoza',
+    'Misiones',
+    'Neuquén',
+    'Río Negro',
+    'Salta',
+    'San Juan',
+    'San Luis',
+    'Santa Cruz',
+    'Santa Fe',
+    'Santiago del Estero',
+    'Tierra del Fuego',
+    'Tucumán',
   ];
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private estadoApi: EstadoApiService
   ) {}
 
   ngOnInit(): void {
@@ -80,7 +100,7 @@ export class PerfilComponent implements OnInit {
 
     // Obtener el ID del usuario logueado
     const userId = this.authService.getUsuarioId();
-    
+
     if (!userId) {
       this.error = 'No hay usuario logueado';
       this.cargando = false;
@@ -105,7 +125,7 @@ export class PerfilComponent implements OnInit {
         this.error = 'Error al cargar el perfil';
         this.cargando = false;
         this.cdr.detectChanges();
-      }
+      },
     });
   }
 
@@ -117,7 +137,7 @@ export class PerfilComponent implements OnInit {
         telefono: this.usuario.telefono,
         provincia: this.usuario.provincia,
         localidad: this.usuario.localidad,
-        imagen: this.usuario.imagen
+        imagen: this.usuario.imagen,
       };
     }
   }
@@ -140,7 +160,7 @@ export class PerfilComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
+
       // Validar tamaño (5MB máximo)
       if (file.size > 5 * 1024 * 1024) {
         this.error = 'La imagen no puede superar los 5MB';
@@ -154,7 +174,7 @@ export class PerfilComponent implements OnInit {
       }
 
       this.imagenFile = file;
-      
+
       // Crear preview
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -165,50 +185,51 @@ export class PerfilComponent implements OnInit {
     }
   }
 
- guardarCambios(): void {
-  if (!this.usuario) return;
+  guardarCambios(): void {
+    if (!this.usuario) return;
 
-  // Validaciones
-  if (!this.usuarioEditado.nombre?.trim()) {
-    this.error = 'El nombre es obligatorio';
-    return;
-  }
-  
-  if (!this.usuarioEditado.apellido?.trim()) {
-    this.error = 'El apellido es obligatorio';
-    return;
-  }
-  
-  if (!this.usuarioEditado.telefono?.trim()) {
-    this.error = 'El teléfono es obligatorio';
-    return;
-  }
-  
-  if (!this.usuarioEditado.localidad?.trim()) {
-    this.error = 'La localidad es obligatoria';
-    return;
-  }
-  this.guardando = true;
-  this.error = null;
-  this.exito = null;
-
-  this.authService.actualizarPerfil(this.usuario.id, this.usuarioEditado).subscribe({
-    next: (usuarioActualizado) => {
-      this.usuario = { ...this.usuario!, ...usuarioActualizado };
-      this.exito = '¡Perfil actualizado correctamente!';
-      this.modoEdicion = false;
-      this.imagenPreview = null;
-      this.imagenFile = null;
-      this.guardando = false;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Error al guardar:', err);
-      this.error = 'Error al guardar los cambios. Intentá de nuevo.';
-      this.guardando = false;
-      this.cdr.detectChanges();
+    // Validaciones
+    if (!this.usuarioEditado.nombre?.trim()) {
+      this.error = 'El nombre es obligatorio';
+      return;
     }
-  });
+
+    if (!this.usuarioEditado.apellido?.trim()) {
+      this.error = 'El apellido es obligatorio';
+      return;
+    }
+
+    if (!this.usuarioEditado.telefono?.trim()) {
+      this.error = 'El teléfono es obligatorio';
+      return;
+    }
+
+    if (!this.usuarioEditado.localidad?.trim()) {
+      this.error = 'La localidad es obligatoria';
+      return;
+    }
+    this.guardando = true;
+    this.error = null;
+    this.exito = null;
+
+    this.authService.actualizarPerfil(this.usuario.id, this.usuarioEditado).subscribe({
+      next: (usuarioActualizado) => {
+        this.usuario = { ...this.usuario!, ...usuarioActualizado };
+        this.estadoApi.setUsuario(this.usuario as any);
+        this.exito = '¡Perfil actualizado correctamente!';
+        this.modoEdicion = false;
+        this.imagenPreview = null;
+        this.imagenFile = null;
+        this.guardando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al guardar:', err);
+        this.error = 'Error al guardar los cambios. Intentá de nuevo.';
+        this.guardando = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   // Cambio de contraseña
@@ -229,41 +250,43 @@ export class PerfilComponent implements OnInit {
   }
 
   cambiarPassword(): void {
-  if (!this.usuario) return;
+    if (!this.usuario) return;
 
-  if (!this.passwordActual || !this.passwordNueva || !this.passwordConfirmar) {
-    this.errorPassword = 'Completá todos los campos';
-    return;
-  }
-
-  if (this.passwordNueva.length < 6) {
-    this.errorPassword = 'La nueva contraseña debe tener al menos 6 caracteres';
-    return;
-  }
-
-  if (this.passwordNueva !== this.passwordConfirmar) {
-    this.errorPassword = 'Las contraseñas no coinciden';
-    return;
-  }
-
-  this.cambiandoPassword = true;
-  this.errorPassword = null;
-
-  this.authService.cambiarPassword(this.usuario.id, this.passwordActual, this.passwordNueva).subscribe({
-    next: () => {
-      this.exito = '¡Contraseña actualizada correctamente!';
-      this.cerrarModalPassword();
-      this.cambiandoPassword = false;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Error al cambiar contraseña:', err);
-      this.errorPassword = err.error || 'Error al cambiar la contraseña';
-      this.cambiandoPassword = false;
-      this.cdr.detectChanges();
+    if (!this.passwordActual || !this.passwordNueva || !this.passwordConfirmar) {
+      this.errorPassword = 'Completá todos los campos';
+      return;
     }
-  });
-}
+
+    if (this.passwordNueva.length < 6) {
+      this.errorPassword = 'La nueva contraseña debe tener al menos 6 caracteres';
+      return;
+    }
+
+    if (this.passwordNueva !== this.passwordConfirmar) {
+      this.errorPassword = 'Las contraseñas no coinciden';
+      return;
+    }
+
+    this.cambiandoPassword = true;
+    this.errorPassword = null;
+
+    this.authService
+      .cambiarPassword(this.usuario.id, this.passwordActual, this.passwordNueva)
+      .subscribe({
+        next: () => {
+          this.exito = '¡Contraseña actualizada correctamente!';
+          this.cerrarModalPassword();
+          this.cambiandoPassword = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Error al cambiar contraseña:', err);
+          this.errorPassword = err.error || 'Error al cambiar la contraseña';
+          this.cambiandoPassword = false;
+          this.cdr.detectChanges();
+        },
+      });
+  }
 
   volver(): void {
     this.router.navigate(['/home']);

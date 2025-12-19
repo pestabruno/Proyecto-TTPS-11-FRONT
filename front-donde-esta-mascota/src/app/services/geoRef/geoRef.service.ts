@@ -27,7 +27,7 @@ export class GeorefService {
     return this.http.get(this.API_URL, { params });
   }
 
-  private readonly LOCALIDADES_URL = '/georef/api/localidades';
+  private readonly LOCALIDADES_URL = 'https://apis.datos.gob.ar/georef/api/localidades';
 
   obtenerCoordenadasUsuario(localidad: string, provincia: string): Observable<any> {
     const params = new HttpParams()
