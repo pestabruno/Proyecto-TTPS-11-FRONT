@@ -1,0 +1,22 @@
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    /* O el tamaño que prefieras */
+}
+
+#map {
+    height: 500px;
+    /* O 100vh para pantalla completa */
+    width: 100%;
+    display: block;
+    z-index: 1;
+    /* Para que no quede debajo de otros elementos */
+}
+
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}

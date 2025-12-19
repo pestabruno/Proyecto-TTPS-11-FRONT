@@ -1,23 +1,21 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
-import { AppEstado, UsuarioLogueado } from '../interfaces/estado.interface';
+import { AppEstado, Publicacion, UsuarioLogueado } from '../interfaces/estado.interface';
 import { AuthService } from './auth/AuthService';
 import { Router } from '@angular/router';
+import { GeorefService } from './geoRef/geoRef.service';
 
 function getUserIdFromStorage(): number | null {
   const userId = localStorage.getItem('user_id');
   return userId ? parseInt(userId, 10) : null;
 }
 
-// 1. Definición del Estado Inicial
 const ESTADO_INICIAL: AppEstado = {
   usuario: null,
   estaLogueado: false,
-
   publicacionesGlobales: [],
   cargandoPublicaciones: false,
   errorPublicaciones: null,
-
   avistamientosGlobales: [],
   cargandoAvistamientos: false,
   errorAvistamientos: null,
@@ -29,31 +27,30 @@ const ESTADO_INICIAL: AppEstado = {
 export class EstadoApiService {
   private authService = inject(AuthService);
   private router = inject(Router);
-  // EL ESTADO PRIVADO (fuente de verdad)
-  private estadoSubject = new BehaviorSubject<AppEstado>(ESTADO_INICIAL);
+  private georefService = inject(GeorefService);
 
-  // EL ESTADO PÚBLICO (para que los componentes se suscriban)
+  private estadoSubject = new BehaviorSubject<AppEstado>(ESTADO_INICIAL);
   public readonly estado$: Observable<AppEstado> = this.estadoSubject.asObservable();
 
   constructor() {
+    // Solo inicializamos la sesión del usuario
     this.inicializarEstado();
   }
 
-  /** Obtiene el valor actual del estado (solo para uso interno) */
   private get estadoActual(): AppEstado {
     return this.estadoSubject.value;
   }
 
-  /**
-   * Actualiza el estado global de forma inmutable, combinando el estado actual con los nuevos datos.
-   * @param nuevosDatos - Objeto parcial (Partial<AppEstado>) con los campos a modificar.
-   */
+  /** Obtiene el valor actual sin suscribirse (útil para lógica rápida) */
+  public obtenerValorActual(): AppEstado {
+    return this.estadoActual;
+  }
+
   public actualizarEstado(nuevosDatos: Partial<AppEstado>): void {
-    const nuevoEstado: AppEstado = {
+    this.estadoSubject.next({
       ...this.estadoActual,
       ...nuevosDatos,
-    };
-    this.estadoSubject.next(nuevoEstado);
+    });
   }
 
   public setUsuario(usuario: UsuarioLogueado | null): void {
@@ -61,52 +58,96 @@ export class EstadoApiService {
       usuario: usuario,
       estaLogueado: usuario !== null,
     });
+
+    if (usuario) {
+      this.enriquecerUsuarioConCoordenadas(usuario);
+    }
   }
 
+  private enriquecerUsuarioConCoordenadas(usuario: UsuarioLogueado): void {
+    const { localidad, provincia } = usuario;
+
+    if (!localidad || !provincia) return;
+
+    this.georefService.obtenerCoordenadasUsuario(localidad, provincia).subscribe({
+      next: (res) => {
+        // El endpoint /localidades devuelve un array 'localidades'
+        if (res.localidades && res.localidades.length > 0) {
+          // Extraemos el centroide (lat y lon)
+          const { lat, lon } = res.localidades[0].centroide;
+
+          const usuarioActualizado = {
+            ...usuario,
+            latitud: lat,
+            longitud: lon,
+          };
+
+          this.actualizarEstado({ usuario: usuarioActualizado });
+          console.log(`Ubicación de centroide obtenida para: ${localidad}`);
+        }
+      },
+      error: (err) => console.error('Error al obtener centroide del usuario:', err),
+    });
+  }
   public cerrarSesion(): void {
-    // 🚀 LIMPIEZA CLAVE: Remover ambas claves
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_id');
-
-    this.setUsuario(null); // Limpia el estado interno
-
-    // Redirigir a login
+    this.setUsuario(null);
     this.router.navigate(['/login']);
   }
-  /**
-   * Intenta cargar el usuario del localStorage al iniciar la aplicación.
-   */
+
   public inicializarEstado(): void {
-    const userId = getUserIdFromStorage(); // Obtiene el ID guardado
+    const userId = getUserIdFromStorage();
     const token = localStorage.getItem('jwt_token');
 
-    // Solo procede si AMBOS existen (Token y ID son necesarios)
     if (userId && token) {
-      console.log('Token y ID encontrados. Intentando cargar datos de usuario...');
-
       this.authService
         .getUsuarioData(userId)
         .pipe(
-          tap((userData) => {
-            // Éxito: Cargar el usuario en el estado
-            this.setUsuario(userData);
-            console.log('Sesión cargada exitosamente.');
-          }),
-          catchError((error) => {
-            // Error (Token inválido, expirado, o ID incorrecto): Limpiar sesión
-            console.error('Error al obtener datos de usuario. Limpiando sesión...', error);
-            // Llama a this.cerrarSesion() para limpiar localStorage y el estado
+          tap((userData) => this.setUsuario(userData)),
+          catchError(() => {
             this.cerrarSesion();
             return of(null);
           })
         )
         .subscribe();
-    } else {
-      // No hay datos suficientes, asegura que el estado esté limpio
-      this.setUsuario(null);
-      // Asegura que no quede un token sin ID (o viceversa)
-      localStorage.removeItem('jwt_token');
-      localStorage.removeItem('user_id');
     }
+  }
+
+  // --- GESTIÓN DE PUBLICACIONES ---
+  public setPublicaciones(publicaciones: Publicacion[]): void {
+    // 1. Guardamos la lista básica
+    this.actualizarEstado({ publicacionesGlobales: publicaciones });
+
+    // 2. Disparamos Georef para cada una que no tenga coordenadas
+    publicaciones.forEach((pub) => {
+      if (!pub.latitud) {
+        this.enriquecerConCoordenadas(pub);
+      }
+    });
+  }
+
+  public agregarNuevaPublicacion(nueva: Publicacion): void {
+    const listaActualizada = [...this.estadoActual.publicacionesGlobales, nueva];
+    this.actualizarEstado({ publicacionesGlobales: listaActualizada });
+    if (!nueva.latitud) this.enriquecerConCoordenadas(nueva);
+  }
+
+  private enriquecerConCoordenadas(pub: Publicacion): void {
+    this.georefService
+      .obtenerCoordenadas(pub.calle, pub.altura, pub.localidad, pub.provincia)
+      .subscribe((res) => {
+        if (res.direcciones?.length > 0) {
+          const { lat, lon } = res.direcciones[0].ubicacion;
+          this.actualizarCoordenadaPublicacion(pub.id, lat, lon);
+        }
+      });
+  }
+
+  private actualizarCoordenadaPublicacion(id: number, lat: number, lon: number): void {
+    const actualizadas = this.estadoActual.publicacionesGlobales.map((p) =>
+      p.id === id ? { ...p, latitud: lat, longitud: lon } : p
+    );
+    this.actualizarEstado({ publicacionesGlobales: actualizadas });
   }
 }

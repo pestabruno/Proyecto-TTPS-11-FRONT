@@ -94,11 +94,6 @@
   <div *ngIf="cargando" class="mensaje-carga">
     <p>Cargando publicaciones...</p>
   </div>
-
-  <div *ngIf="error && !cargando" class="mensaje-error">
-    <p>{{ error }}</p>
-    <button (click)="cargarPublicaciones()">Reintentar</button>
-  </div>
   
   <div *ngIf="!cargando && !error && publicacionesPaginadas.length > 0" class="grid">
     <div *ngFor="let pub of publicacionesPaginadas" class="card">

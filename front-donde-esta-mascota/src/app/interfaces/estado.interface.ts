@@ -18,6 +18,8 @@ export interface UsuarioLogueado {
   imagen: string;
   provincia: string;
   localidad: string;
+  latitud?: number;
+  longitud?: number;
   publicaciones: Publicacion[]; // Lista de publicaciones del usuario (podría ser un array de IDs para optimizar)
   avistamientos: Avistamiento[]; // Lista de avistamientos del usuario (podría ser un array de IDs para optimizar)
 }
@@ -32,9 +34,11 @@ export interface Publicacion {
   descripcion: string;
   telefono: string;
   estado: 'PERDIDO_PROPIO' | 'ENCONTRADO';
-  imagenes64: string[];  // ⚠️ Cambiar de imagenesUrls a imagenes64
+  imagenes64: string[]; // ⚠️ Cambiar de imagenesUrls a imagenes64
   provincia: string;
   localidad: string;
+  latitud?: number;
+  longitud?: number;
   calle: string;
   altura: string;
   autor: AutorReportante;

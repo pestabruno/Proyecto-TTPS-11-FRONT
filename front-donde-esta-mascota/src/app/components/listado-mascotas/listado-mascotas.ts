@@ -1,12 +1,12 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { Publicacion } from '../../interfaces/estado.interface';
 import { PublicacionService } from '../../services/publicacion/publicacion.service';
 import { AuthService } from '../../services/auth/AuthService';
+import { EstadoApiService } from '../../services/estado-api';
 
 interface Filtros {
   soloMisPublicaciones: boolean;
@@ -20,171 +20,93 @@ interface Filtros {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './listado-mascotas.html',
-  styleUrls: ['./listado-mascotas.css']
+  styleUrls: ['./listado-mascotas.css'],
 })
-export class ListadoMascotasComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ListadoMascotasComponent implements OnInit, OnDestroy {
+  private estadoApi = inject(EstadoApiService);
+  private publicacionService = inject(PublicacionService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   publicaciones: Publicacion[] = [];
   publicacionesFiltradas: Publicacion[] = [];
-  
-  Math = Math;
-  
   publicacionesPaginadas: Publicacion[] = [];
+
   paginaActual: number = 1;
   itemsPorPagina: number = 12;
   totalPaginas: number = 0;
-  
   cargando: boolean = true;
   error: string | null = null;
-  
   mostrarFiltros: boolean = false;
-  
-  // ✅ NUEVO: Filtros temporales (lo que el usuario está seleccionando)
-  filtrosTemporales: Filtros = {
-    soloMisPublicaciones: false,
-    estado: '',
-    provincia: '',
-    tamanio: ''
-  };
-  
-  // ✅ Filtros aplicados (los que realmente están activos)
-  filtros: Filtros = {
-    soloMisPublicaciones: false,
-    estado: '',
-    provincia: '',
-    tamanio: ''
-  };
-  
-  private routerSubscription?: Subscription;
+  Math = Math;
+
+  filtros: Filtros = { soloMisPublicaciones: false, estado: '', provincia: '', tamanio: '' };
+  filtrosTemporales: Filtros = { ...this.filtros };
+
+  private estadoSub?: Subscription;
   private usuarioIdActual: number | null = null;
 
-  constructor(
-    private publicacionService: PublicacionService,
-    private AuthService: AuthService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
-  ) {}
-
   ngOnInit(): void {
-    this.usuarioIdActual = this.AuthService.getUsuarioId();
-    this.cargarPublicaciones();
+    this.usuarioIdActual = this.authService.getUsuarioId();
 
-    this.routerSubscription = this.router.events
-      .pipe(
-        filter(event => event instanceof NavigationEnd)
-      )
-      .subscribe((event: any) => {
-        if (event.url === '/listado' || event.url === '/') {
-          this.cargarPublicaciones();
-        }
-      });
-  }
+    this.estadoSub = this.estadoApi.estado$.subscribe((estado) => {
+      this.publicaciones = estado.publicacionesGlobales;
+      this.cargando = estado.cargandoPublicaciones;
+      this.error = estado.errorPublicaciones;
+      this.aplicarFiltros();
+      this.cdr.detectChanges();
+    });
 
-  ngAfterViewInit(): void {
-    this.cdr.detectChanges();
-  }
-
-  ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
+    if (this.publicaciones.length === 0) {
+      this.publicacionService.obtenerTodas().subscribe();
     }
   }
 
-  cargarPublicaciones(): void {
-    this.cargando = true;
-    this.error = null;
-
-    this.publicacionService.obtenerTodas().subscribe({
-      next: (data) => {
-        this.publicaciones = data;
-        this.aplicarFiltros();
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        console.error('Error:', err);
-        this.error = 'Error al cargar las publicaciones';
-        this.cargando = false;
-        this.cdr.detectChanges();
-      }
-    });
+  ngOnDestroy(): void {
+    this.estadoSub?.unsubscribe();
   }
 
-  // ✅ MODIFICADO: Solo aplica los filtros guardados, no los temporales
   aplicarFiltros(): void {
-    this.publicacionesFiltradas = this.publicaciones.filter(pub => {
-      if (this.filtros.soloMisPublicaciones) {
-        if (!this.usuarioIdActual || pub.autor.id !== this.usuarioIdActual) {
-          return false;
-        }
-      }
-
-      if (this.filtros.estado && pub.estado !== this.filtros.estado) {
-        return false;
-      }
-
-      if (this.filtros.provincia && pub.provincia !== this.filtros.provincia) {
-        return false;
-      }
-
-      if (this.filtros.tamanio && pub.tamanio !== this.filtros.tamanio) {
-        return false;
-      }
-
+    this.publicacionesFiltradas = this.publicaciones.filter((pub) => {
+      if (this.filtros.soloMisPublicaciones && pub.autor.id !== this.usuarioIdActual) return false;
+      if (this.filtros.estado && pub.estado !== this.filtros.estado) return false;
+      if (this.filtros.provincia && pub.provincia !== this.filtros.provincia) return false;
+      if (this.filtros.tamanio && pub.tamanio !== this.filtros.tamanio) return false;
       return true;
     });
-
     this.paginaActual = 1;
     this.calcularPaginacion();
     this.actualizarPagina();
   }
 
-  // ✅ NUEVO: Guardar filtros temporales y aplicarlos
   guardarFiltros(): void {
-    // Copiar los filtros temporales a los filtros reales
     this.filtros = { ...this.filtrosTemporales };
-    
-    // Aplicar los filtros
     this.aplicarFiltros();
-    
-    // Cerrar el modal
     this.toggleModal();
   }
 
-  // ✅ MODIFICADO: Limpiar tanto temporales como aplicados
   limpiarFiltros(): void {
-    this.filtrosTemporales = {
-      soloMisPublicaciones: false,
-      estado: '',
-      provincia: '',
-      tamanio: ''
-    };
-    
-    this.filtros = {
-      soloMisPublicaciones: false,
-      estado: '',
-      provincia: '',
-      tamanio: ''
-    };
-    
+    this.filtros = { soloMisPublicaciones: false, estado: '', provincia: '', tamanio: '' };
+    this.filtrosTemporales = { ...this.filtros };
     this.aplicarFiltros();
     this.toggleModal();
   }
 
-  // ✅ MODIFICADO: Al abrir el modal, copiar filtros actuales a temporales
   toggleModal(): void {
     if (!this.mostrarFiltros) {
-      // Al abrir, copiar los filtros actuales a temporales
       this.filtrosTemporales = { ...this.filtros };
     }
     this.mostrarFiltros = !this.mostrarFiltros;
   }
 
   hayFiltrosActivos(): boolean {
-    return this.filtros.soloMisPublicaciones ||
-           this.filtros.estado !== '' ||
-           this.filtros.provincia !== '' ||
-           this.filtros.tamanio !== '';
+    return (
+      this.filtros.soloMisPublicaciones ||
+      this.filtros.estado !== '' ||
+      this.filtros.provincia !== '' ||
+      this.filtros.tamanio !== ''
+    );
   }
 
   calcularPaginacion(): void {
@@ -193,46 +115,40 @@ export class ListadoMascotasComponent implements OnInit, AfterViewInit, OnDestro
 
   actualizarPagina(): void {
     const inicio = (this.paginaActual - 1) * this.itemsPorPagina;
-    const fin = inicio + this.itemsPorPagina;
-    this.publicacionesPaginadas = this.publicacionesFiltradas.slice(inicio, fin);
+    this.publicacionesPaginadas = this.publicacionesFiltradas.slice(
+      inicio,
+      inicio + this.itemsPorPagina
+    );
   }
 
-  irAPagina(pagina: number): void {
-    if (pagina < 1 || pagina > this.totalPaginas) return;
-    
-    this.paginaActual = pagina;
+  irAPagina(p: number): void {
+    if (p < 1 || p > this.totalPaginas) return;
+    this.paginaActual = p;
     this.actualizarPagina();
-    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   paginaAnterior(): void {
-    if (this.paginaActual > 1) {
-      this.irAPagina(this.paginaActual - 1);
-    }
+    this.irAPagina(this.paginaActual - 1);
   }
 
   paginaSiguiente(): void {
-    if (this.paginaActual < this.totalPaginas) {
-      this.irAPagina(this.paginaActual + 1);
-    }
+    this.irAPagina(this.paginaActual + 1);
   }
 
   getPaginasArray(): number[] {
     const paginas: number[] = [];
-    const maxPaginasVisibles = 5;
-    
-    let inicio = Math.max(1, this.paginaActual - Math.floor(maxPaginasVisibles / 2));
-    let fin = Math.min(this.totalPaginas, inicio + maxPaginasVisibles - 1);
-    
-    if (fin - inicio < maxPaginasVisibles - 1) {
-      inicio = Math.max(1, fin - maxPaginasVisibles + 1);
+    const maxVisibles = 5;
+    let inicio = Math.max(1, this.paginaActual - Math.floor(maxVisibles / 2));
+    let fin = Math.min(this.totalPaginas, inicio + maxVisibles - 1);
+
+    if (fin - inicio < maxVisibles - 1) {
+      inicio = Math.max(1, fin - maxVisibles + 1);
     }
-    
+
     for (let i = inicio; i <= fin; i++) {
-      paginas.push(i);
+      if (i > 0) paginas.push(i);
     }
-    
     return paginas;
   }
 
@@ -242,9 +158,9 @@ export class ListadoMascotasComponent implements OnInit, AfterViewInit, OnDestro
 
   formatearEstado(estado: string): string {
     const estados: { [key: string]: string } = {
-      'PERDIDO_PROPIO': 'Perdido (propio)',
-      'PERDIDO_AJENO': 'Perdido (ajeno)',
-      'RECUPERADO': 'Recuperado'
+      PERDIDO_PROPIO: 'Perdido (propio)',
+      PERDIDO_AJENO: 'Perdido (ajeno)',
+      RECUPERADO: 'Recuperado',
     };
     return estados[estado] || estado;
   }
