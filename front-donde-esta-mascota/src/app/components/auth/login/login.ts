@@ -1,8 +1,14 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+  FormsModule,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
-
+import Swal from 'sweetalert2';
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -29,6 +35,7 @@ import { switchMap } from 'rxjs/operators';
     MatButtonModule,
     MatIconModule,
     RouterModule,
+    FormsModule,
   ],
 })
 export class LoginComponent implements OnInit {
@@ -40,6 +47,7 @@ export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
   private estadoApi = inject(EstadoApiService);
   private router = inject(Router);
+  private cd = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -90,16 +98,16 @@ export class LoginComponent implements OnInit {
           console.error('Error durante la secuencia de login:', error);
           localStorage.removeItem('jwt_token');
           localStorage.removeItem('user_id');
-          
-    
+
           if (error.status === 401) {
             this.errorMessage = 'Email o contraseña incorrectos';
           } else if (error.status === 0) {
             this.errorMessage = 'No se pudo conectar con el servidor';
           } else {
-            this.errorMessage = error.error?.message || 'Error al iniciar sesión. Intentá de nuevo.';
+            this.errorMessage =
+              error.error?.message || 'Error al iniciar sesión. Intentá de nuevo.';
           }
-        }
+        },
       });
   }
 
@@ -111,5 +119,58 @@ export class LoginComponent implements OnInit {
 
   get password() {
     return this.loginForm!.get('password');
+  }
+
+  mostrarModalRecuperar: boolean = false;
+  emailRecuperacion: string = '';
+  cargandoRecuperacion: boolean = false;
+
+  abrirModalRecuperar(event: Event) {
+    event.preventDefault();
+    this.mostrarModalRecuperar = true;
+  }
+
+  enviarClaveNueva() {
+    if (!this.emailRecuperacion) return;
+
+    Swal.fire({
+      title: 'Procesando...',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    this.authService.recuperarPassword(this.emailRecuperacion).subscribe({
+      next: (res) => {
+        this.mostrarModalRecuperar = false;
+        this.emailRecuperacion = '';
+
+        this.cd.detectChanges();
+
+        Swal.close();
+
+        Swal.fire({
+          title: '¡Correo Enviado!',
+          text: 'La nueva contraseña ya está en tu e-mail.',
+          icon: 'success',
+        });
+
+        this.emailRecuperacion = '';
+      },
+      error: (err) => {
+        Swal.fire({
+          title: 'Error',
+          text: err.error?.error || 'No se pudo enviar el correo.',
+          icon: 'error',
+        });
+      },
+    });
+  }
+
+  cerrarModalRecuperar() {
+    this.mostrarModalRecuperar = false;
+    this.emailRecuperacion = '';
+    this.cargandoRecuperacion = false;
   }
 }

@@ -58,8 +58,28 @@
     </mat-card-content>
 
     <div class="links">
-      <a href="#" class="link-text">¿Olvidaste tu contraseña?</a>
+      <a href="#" (click)="abrirModalRecuperar($event)" class="link-text">¿Olvidaste tu contraseña?</a>
       <a [routerLink]="['/register']" class="link-text"> ¿No tienes cuenta? Regístrate </a>
+    </div>
+    
+    <div class="modal-overlay" *ngIf="mostrarModalRecuperar">
+      <div class="modal-content">
+        <h3>Recuperar Contraseña</h3>
+        <p>Ingresa tu email para recibir una contraseña provisoria.</p>
+    
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Tu correo electrónico</mat-label>
+          <input matInput [(ngModel)]="emailRecuperacion" type="email" placeholder="ejemplo@correo.com" />
+        </mat-form-field>
+    
+        <div class="modal-botones">
+          <button mat-button (click)="cerrarModalRecuperar()" [disabled]="cargandoRecuperacion">Cancelar</button>
+          <button mat-raised-button color="primary" [disabled]="!emailRecuperacion || cargandoRecuperacion"
+            (click)="enviarClaveNueva()">
+            {{ cargandoRecuperacion ? 'Enviando...' : 'Enviar Nueva Clave' }}
+          </button>
+        </div>
+      </div>
     </div>
   </mat-card>
 </div>
