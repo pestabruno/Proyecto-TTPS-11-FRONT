@@ -48,12 +48,11 @@ export interface Publicacion {
 // Estructura de un Avistamiento
 export interface Avistamiento {
   id: number;
-  publicacionId: number | null; // ID de la publicación asociada o null si es un avistamiento independiente
+  publicacionId: number | null;
   reportante: AutorReportante;
-  direccion: string;
-  fecha: string; // Formato "YYYY-MM-DD"
-  hora: string; // Formato "HH:MM:SS"
-  descripcion: string;
+  fecha: string; // "YYYY-MM-DD"
+  hora: string;  // "HH:mm:ss"
+  descripcion: string | null;
   imagenes64: string[];
   provincia: string;
   localidad: string;

@@ -1,0 +1,184 @@
+<div class="container">
+  <h1>Avistamientos Reportados</h1>
+  
+  <button class="filtros-btn" (click)="toggleModal()">
+    Filtros
+    <span *ngIf="hayFiltrosActivos()" class="badge-filtros">●</span>
+  </button>
+
+  <!-- Modal de Filtros -->
+  <div class="modal-overlay" *ngIf="mostrarFiltros" (click)="toggleModal()">
+    <div class="modal-filtros" (click)="$event.stopPropagation()">
+      <button class="cerrar-modal" (click)="toggleModal()">×</button>
+      
+      <h2>Filtros</h2>
+      
+      <div class="filtros-contenido">
+        <!-- Filtro: Mis Avistamientos -->
+        <div class="filtro-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="filtrosTemporales.soloMisAvistamientos">
+            <span>Ver solo mis avistamientos</span>
+          </label>
+        </div>
+
+        <!-- Filtro: Provincia -->
+        <div class="filtro-group">
+          <label>Provincia</label>
+          <select 
+            [(ngModel)]="filtrosTemporales.provincia" 
+            class="filtro-select">
+            <option value="">Todas</option>
+            <option value="Buenos Aires">Buenos Aires</option>
+            <option value="Córdoba">Córdoba</option>
+            <option value="Santa Fe">Santa Fe</option>
+            <option value="Mendoza">Mendoza</option>
+          </select>
+        </div>
+
+        <!-- Filtro: Fecha Desde -->
+        <div class="filtro-group">
+          <label>Fecha Desde</label>
+          <input 
+            type="date" 
+            [(ngModel)]="filtrosTemporales.fechaDesde"
+            class="filtro-input">
+        </div>
+
+        <!-- Filtro: Fecha Hasta -->
+        <div class="filtro-group">
+          <label>Fecha Hasta</label>
+          <input 
+            type="date" 
+            [(ngModel)]="filtrosTemporales.fechaHasta"
+            class="filtro-input">
+        </div>
+
+        <!-- Botones -->
+        <div class="filtros-acciones">
+          <button class="btn-limpiar" (click)="limpiarFiltros()">
+            Limpiar filtros
+          </button>
+          <button class="btn-aplicar" (click)="guardarFiltros()">
+            Aplicar filtros
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Información de resultados -->
+  <div class="info-resultados" *ngIf="!cargando && !error">
+    <p>
+      Mostrando 
+      <strong>{{ (paginaActual - 1) * itemsPorPagina + 1 }}</strong> - 
+      <strong>{{ Math.min(paginaActual * itemsPorPagina, avistamientosFiltrados.length) }}</strong> 
+      de <strong>{{ avistamientosFiltrados.length }}</strong> avistamientos
+      <span *ngIf="hayFiltrosActivos()" class="filtros-activos">
+        ({{ avistamientos.length }} totales)
+      </span>
+    </p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="cargando" class="mensaje-carga">
+    <p>Cargando avistamientos...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!cargando && error" class="mensaje-error">
+    <p>{{ error }}</p>
+    <button (click)="aplicarFiltros()">Reintentar</button>
+  </div>
+  
+  <!-- Grid de Avistamientos -->
+  <div *ngIf="!cargando && !error && avistamientosPaginados.length > 0" class="grid">
+    <div *ngFor="let avist of avistamientosPaginados" class="card">
+      <div class="card-image">
+        <img 
+          [src]="avist.imagenes64[0]" 
+          [alt]="'Avistamiento en ' + avist.localidad" 
+          *ngIf="avist.imagenes64 && avist.imagenes64.length > 0">
+        <div class="sin-imagen" *ngIf="!avist.imagenes64 || avist.imagenes64.length === 0">
+          📍 Sin imagen
+        </div>
+      </div>
+      
+      <div class="card-content">
+        <div class="card-info">
+          <p class="info-item">
+            <strong>📅 Fecha y Hora:</strong> 
+            {{ formatearFechaHora(avist.fecha, avist.hora) }}
+          </p>
+          <p class="info-item">
+            <strong>📍 Ubicación:</strong> 
+            {{ avist.calle }} {{ avist.altura }}, {{ avist.localidad }}
+          </p>
+          <p class="info-item">
+        <strong>📝 Descripción:</strong> 
+        {{ avist.descripcion && avist.descripcion.length > 80 ? (avist.descripcion | slice:0:80) + '...' : (avist.descripcion || 'Sin descripción') }}
+        </p>
+          <p class="info-item info-reportante">
+            <strong>👤 Reportado por:</strong> 
+            {{ avist.reportante.nombre }} {{ avist.reportante.apellido }}
+          </p>
+        </div>
+        
+        <button class="ver-detalle-btn" (click)="verDetalle(avist.id)">
+          Ver detalle completo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paginación -->
+  <div class="paginacion" *ngIf="!cargando && !error && totalPaginas > 1">
+    <button 
+      class="btn-pagina" 
+      (click)="paginaAnterior()" 
+      [disabled]="paginaActual === 1">
+      ← Anterior
+    </button>
+
+    <button 
+      *ngIf="paginaActual > 3"
+      class="btn-pagina"
+      (click)="irAPagina(1)">
+      1
+    </button>
+
+    <span *ngIf="paginaActual > 3" class="puntos-suspension">...</span>
+
+    <button 
+      *ngFor="let pagina of getPaginasArray()"
+      class="btn-pagina"
+      [class.activa]="pagina === paginaActual"
+      (click)="irAPagina(pagina)">
+      {{ pagina }}
+    </button>
+
+    <span *ngIf="paginaActual < totalPaginas - 2" class="puntos-suspension">...</span>
+
+    <button 
+      *ngIf="paginaActual < totalPaginas - 2"
+      class="btn-pagina"
+      (click)="irAPagina(totalPaginas)">
+      {{ totalPaginas }}
+    </button>
+
+    <button 
+      class="btn-pagina" 
+      (click)="paginaSiguiente()" 
+      [disabled]="paginaActual === totalPaginas">
+      Siguiente →
+    </button>
+  </div>
+
+  <!-- Sin resultados -->
+  <div *ngIf="!cargando && !error && avistamientosFiltrados.length === 0" class="sin-publicaciones">
+    <p>📭 No hay avistamientos que coincidan con los filtros</p>
+    <button class="btn-limpiar" (click)="limpiarFiltros()">Limpiar filtros</button>
+  </div>
+</div>

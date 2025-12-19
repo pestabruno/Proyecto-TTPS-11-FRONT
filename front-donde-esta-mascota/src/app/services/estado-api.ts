@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, Observable, of, tap } from 'rxjs';
-import { AppEstado, Publicacion, UsuarioLogueado } from '../interfaces/estado.interface';
+import { AppEstado, Publicacion, UsuarioLogueado,Avistamiento } from '../interfaces/estado.interface';
 import { AuthService } from './auth/AuthService';
 import { Router } from '@angular/router';
 import { GeorefService } from './geoRef/geoRef.service';
@@ -132,6 +132,7 @@ export class EstadoApiService {
       if (pub.avistamientos && pub.avistamientos.length > 0) {
         this.enriquecerAvistamientosDePublicacion(pub);
       }
+      console.log('Publicacion procesada para georef:', pub);
     });
   }
 
@@ -248,5 +249,19 @@ export class EstadoApiService {
       p.id === id ? { ...p, latitud: lat, longitud: lon } : p
     );
     this.actualizarEstado({ publicacionesGlobales: actualizadas });
+  }
+
+
+
+
+  // --- GESTIÓN DE AVISTAMIENTOS ---
+  public setAvistamientos(avistamientos: Avistamiento[]): void {
+    console.log(`📦 Cargando ${avistamientos.length} avistamientos...`);
+    this.actualizarEstado({ avistamientosGlobales: avistamientos });
+  }
+
+  public agregarNuevoAvistamiento(nuevo: Avistamiento): void {
+    const listaActualizada = [...this.estadoActual.avistamientosGlobales, nuevo];
+    this.actualizarEstado({ avistamientosGlobales: listaActualizada });
   }
 }

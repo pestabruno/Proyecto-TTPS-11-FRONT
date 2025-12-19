@@ -7,6 +7,7 @@ import { DetallePublicacionComponent } from './components/detalle-publicacion/de
 import { ReportarMascotaComponent } from './components/reportar-mascota/reportar-mascota';
 //import { authGuard } from './guards/auth.guard'
 import { PerfilComponent } from './components/perfil/perfil';
+import { ListadoAvistamientoComponent } from './components/listado-avistamiento/listado-avistamiento';
 export const routes: Routes = [
   {
     path: '',
@@ -47,5 +48,10 @@ export const routes: Routes = [
   path: 'perfil',
   component: PerfilComponent,
   //canActivate: [authGuard]  // si querés que solo usuarios logueados puedan acceder
-  }
+  },
+  {
+    path: 'avistamiento',  
+    component: ListadoAvistamientoComponent,
+    title: 'Avistamientos Reportados',
+  },
 ];

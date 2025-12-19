@@ -114,20 +114,55 @@
           </button>
         </div>
 
-        <!-- avistamientos -->
-        <div class="avistamientos-section" *ngIf="publicacion.avistamientos && publicacion.avistamientos.length > 0">
-          <h3>Avistamientos reportados ({{ publicacion.avistamientos.length }})</h3>
-          <div class="avistamiento-card" *ngFor="let avistamiento of publicacion.avistamientos">
-            <p><strong>Fecha:</strong> {{ avistamiento.fecha }}</p>
-            <p><strong>Descripción:</strong> {{ avistamiento.descripcion || 'Sin descripción' }}</p>
-          </div>
-        </div>
+       <!-- avistamientos -->
+<div class="avistamientos-section" *ngIf="publicacion.avistamientos && publicacion.avistamientos.length > 0">
+  <h3>Avistamientos reportados ({{ publicacion.avistamientos.length }})</h3>
+  
+  <div class="avistamiento-card" *ngFor="let avistamiento of publicacion.avistamientos">
+    <div class="avistamiento-header">
+      <p class="avistamiento-fecha">
+        <strong>📅 Fecha:</strong> {{ avistamiento.fecha }}
+      </p>
+      <p class="avistamiento-hora">
+        <strong>🕐 Hora:</strong> {{ avistamiento.hora }}
+      </p>
+    </div>
+    
+    <div class="avistamiento-body">
+      <p class="avistamiento-ubicacion">
+        <strong>📍 Ubicación:</strong> 
+        {{ avistamiento.calle }} {{ avistamiento.altura }}, {{ avistamiento.localidad }}, {{ avistamiento.provincia }}
+      </p>
+      
+      <p class="avistamiento-descripcion" *ngIf="avistamiento.descripcion">
+        <strong>📝 Descripción:</strong> 
+        {{ avistamiento.descripcion }}
+      </p>
+      
+      <p class="avistamiento-descripcion sin-descripcion" *ngIf="!avistamiento.descripcion">
+        <strong>📝 Descripción:</strong> 
+        <span class="texto-gris">Sin descripción</span>
+      </p>
 
-        <div *ngIf="!publicacion.avistamientos || publicacion.avistamientos.length === 0" class="sin-avistamientos">
-          <p>Aún no hay avistamientos reportados para esta mascota</p>
-        </div>
+      <p class="avistamiento-reportante" *ngIf="avistamiento.reportante">
+        <strong>👤 Reportado por:</strong> 
+        {{ avistamiento.reportante.nombre }} {{ avistamiento.reportante.apellido }}
+      </p>
+    </div>
 
+    <!-- Imágenes del avistamiento -->
+    <div class="avistamiento-imagenes" *ngIf="avistamiento.imagenes64 && avistamiento.imagenes64.length > 0">
+      <p class="imagenes-titulo"><strong>📷 Imágenes:</strong></p>
+      <div class="imagenes-grid">
+        <img 
+          *ngFor="let imagen of avistamiento.imagenes64" 
+          [src]="imagen" 
+          alt="Imagen de avistamiento"
+          class="avistamiento-imagen">
       </div>
+    </div>
+  </div>
+</div>
 
       <!-- Panel lateral derecho (solo si es autor) -->
       <aside *ngIf="esAutor" class="panel-lateral">
