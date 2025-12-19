@@ -1,15 +1,15 @@
 <mat-toolbar class="navbar">
-  <a [routerLink]="['/']" class="brand-name">
+  <a [routerLink]="['/home']" class="brand-name">
     <img src="/images/icono.png" class="logo-image" />
   </a>
   <span class="spacer"></span>
 
+  <a mat-button [routerLink]="['/home']" routerLinkActive="active">Home</a>
+  <a mat-button [routerLink]="['/listado']" routerLinkActive="active">Listado Mascotas</a>
   @if (isLoggedIn$ | async) {
-  <a mat-button [routerLink]="['/home']">Home</a>
-  <a mat-button [routerLink]="['/reportar']">Reportar Mascota</a>
-   <a mat-button [routerLink]="['/reportarAvistamiento']">Reportar Avistamiento</a>
-  <a mat-button [routerLink]="['/listado']">Listado Mascotas</a>
-  <a mat-button [routerLink]="['/avistamiento']">Listado Avistamiento</a>
+  <a mat-button [routerLink]="['/reportar']" routerLinkActive="active">Reportar Mascota</a>
+   <a mat-button [routerLink]="['/reportarAvistamiento']" routerLinkActive="active">Reportar Avistamiento</a>
+  <a mat-button [routerLink]="['/avistamiento']" routerLinkActive="active">Listado Avistamiento</a>
   <a mat-button [routerLink]="['/ranking']">Ranking Usuarios</a>
   }
 

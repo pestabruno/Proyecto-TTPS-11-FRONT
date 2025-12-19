@@ -3,17 +3,12 @@
 /* ---------------------------------------------------- */
 
 .hero-section {
-  /* Usar el mismo azul que el navbar */
   background-color: #1976d2;
-  color: white; /* Texto blanco en la sección azul */
-
-  /* Altura: Define qué tan grande será esta sección superior */
+  color: white;
   min-height: 250px;
-
-  /* Flexbox para centrar el contenido vertical y horizontalmente */
   display: flex;
-  justify-content: center; /* Centrado horizontal */
-  align-items: center; /* Centrado vertical */
+  justify-content: center;
+  align-items: center;
 }
 
 /* ---------------------------------------------------- */
@@ -21,14 +16,12 @@
 /* ---------------------------------------------------- */
 
 .icon-container {
-  display: flex; /* Flexbox para colocar los íconos uno al lado del otro */
+  display: flex;
   align-items: center;
-  gap: 30px; /* Espacio entre el perro y el gato */
-
-  /* Estilos del Recuadro */
+  gap: 30px;
   background-color: white;
-  border-radius: 8px; /* Bordes ligeramente redondeados */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Sombra sutil para destacarlo */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 30px 40px;
 }
 
@@ -40,21 +33,21 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  cursor: pointer; /* Indica que se puede hacer clic (si actúan como filtros) */
+  cursor: pointer;
 }
 
 .pet-icon {
-  font-size: 80px; /* Tamaño grande para el ícono */
+  font-size: 80px;
   width: 80px;
   height: 80px;
-  color: #1976d2; /* Color azul para los íconos dentro del recuadro blanco */
+  color: #1976d2;
   margin-bottom: 5px;
 }
 
 .icon-label {
   margin: 0;
   font-size: 1.1em;
-  color: #333; /* Texto oscuro */
+  color: #333;
   font-weight: 600;
 }
 
@@ -67,4 +60,28 @@
   height: 60px;
   background-color: #ccc;
   margin: 0 10px;
+}
+
+/* ---------------------------------------------------- */
+/* 5. CONTENEDOR DEL MAPA */
+/* ---------------------------------------------------- */
+
+app-map {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.icon-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none; /* Quitar subrayado del enlace */
+  color: inherit; /* Heredar el color */
+  transition: transform 0.2s ease; /* Animación suave */
+}
+
+.icon-box:hover {
+  transform: scale(1.05); /* Efecto hover */
 }

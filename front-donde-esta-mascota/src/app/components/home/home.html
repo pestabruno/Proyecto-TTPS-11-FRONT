@@ -1,16 +1,16 @@
 <div class="hero-section">
   <div class="icon-container">
-    <div class="icon-box">
+    <a [routerLink]="['/listado']" routerLinkActive="active" class="icon-box">
       <fa-icon [icon]="faDog" class="pet-icon dog-icon"></fa-icon>
       <p class="icon-label">Perros</p>
-    </div>
+    </a>
 
     <div class="separator"></div>
 
-    <div class="icon-box">
+    <a [routerLink]="['/listado']" routerLinkActive="active" class="icon-box">
       <fa-icon [icon]="faCat" class="pet-icon cat-icon"></fa-icon>
       <p class="icon-label">Gatos</p>
-    </div>
+    </a>
   </div>
 </div>
 <app-map></app-map>
