@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, NgZone } from '@angular/core';
+import { Component, OnInit, inject, NgZone, ChangeDetectorRef } from '@angular/core';
 import {
   FormBuilder,
   FormGroup,
@@ -27,9 +27,21 @@ export function passwordMatchValidator(control: AbstractControl): ValidationErro
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
 
-  if (password && confirmPassword && password.value !== confirmPassword.value) {
-    return { passwordsMismatch: true };
+  if (!password || !confirmPassword) {
+    return null;
   }
+
+  if (password.value !== confirmPassword.value) {
+    confirmPassword.setErrors({ ...confirmPassword.errors, passwordsMismatch: true });
+    return { passwordsMismatch: true };
+  } else {
+    if (confirmPassword.hasError('passwordsMismatch')) {
+      const errors = { ...confirmPassword.errors };
+      delete errors['passwordsMismatch'];
+      confirmPassword.setErrors(Object.keys(errors).length > 0 ? errors : null);
+    }
+  }
+
   return null;
 }
 
@@ -66,6 +78,7 @@ export class RegisterComponent implements OnInit {
   private estadoApi = inject(EstadoApiService);
   private router = inject(Router);
   private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.registerForm = this.fb.group(
@@ -77,15 +90,20 @@ export class RegisterComponent implements OnInit {
         provincia: ['', [Validators.required]],
         localidad: ['', [Validators.required]],
         imagen: ['', [Validators.required]],
-
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         confirmPassword: ['', [Validators.required]],
       },
-      { validator: passwordMatchValidator }
+      { validators: passwordMatchValidator }
     );
-  }
 
+    this.registerForm.get('password')?.valueChanges.subscribe(() => {
+      const confirmPassword = this.registerForm.get('confirmPassword');
+      if (confirmPassword && confirmPassword.value) {
+        this.registerForm.updateValueAndValidity();
+      }
+    });
+  }
   get nombre() {
     return this.registerForm.get('nombre');
   }
@@ -118,36 +136,85 @@ export class RegisterComponent implements OnInit {
   }
 
   public dropped(event: any) {
-    this.profileFile = null;
-    this.imagePreview = null;
-    this.profileImageBase64 = null;
+    console.log('Evento dropped completo:', event);
 
-    if (!event || !event.files || event.files.length === 0) {
+    // ngx-file-drop retorna un array directamente, no en event.files
+    const files = event;
+    console.log('Archivos dropeados:', files);
+
+    if (files && files.length > 0) {
+      const droppedFile = files[0];
+      console.log('Primer archivo:', droppedFile);
+      console.log('fileEntry:', droppedFile.fileEntry);
+
+      // Acceder al fileEntry
+      const fileEntry = droppedFile.fileEntry;
+
+      if (fileEntry && fileEntry.isFile) {
+        console.log('Es un archivo válido, obteniendo File object...');
+
+        // Convertir FileEntry a File
+        (fileEntry as FileSystemFileEntry).file(
+          (file: File) => {
+            console.log('File obtenido exitosamente:', file);
+            console.log('Nombre:', file.name);
+            console.log('Tipo:', file.type);
+            console.log('Tamaño:', file.size);
+
+            // Ejecutar dentro de NgZone para asegurar detección de cambios
+            this.ngZone.run(() => {
+              this.procesarImagen(file);
+            });
+          },
+          (error: any) => {
+            console.error('Error al obtener el archivo desde fileEntry:', error);
+            this.ngZone.run(() => {
+              this.errorMessage = 'Error al procesar el archivo.';
+            });
+          }
+        );
+      } else {
+        console.error('fileEntry no es válido o no es un archivo');
+        console.log('fileEntry.isFile:', fileEntry?.isFile);
+      }
+    } else {
+      console.error('No hay archivos en el evento');
+    }
+  }
+
+  private procesarImagen(file: File) {
+    console.log('Procesando imagen:', file);
+
+    if (!file.type.startsWith('image/')) {
+      this.errorMessage = 'El archivo debe ser una imagen.';
+      console.error('Tipo de archivo inválido:', file.type);
       return;
     }
 
-    const droppedFile = event.files[0];
+    const reader = new FileReader();
 
-    if (droppedFile.fileEntry.isFile) {
-      const fileEntry = droppedFile.fileEntry as any;
+    reader.onload = (e: any) => {
+      this.ngZone.run(() => {
+        console.log('Imagen cargada exitosamente');
+        this.imagePreview = e.target.result;
+        this.profileImageBase64 = e.target.result;
 
-      fileEntry.file((file: File) => {
-        this.profileFile = file;
+        // Actualizamos el form
+        this.registerForm.get('imagen')?.setValue(file.name);
+        this.registerForm.get('imagen')?.markAsTouched();
+        this.registerForm.get('imagen')?.updateValueAndValidity();
 
-        const reader = new FileReader();
-
-        reader.onload = (e: any) => {
-          this.ngZone.run(() => {
-            this.imagePreview = e.target.result;
-            this.profileImageBase64 = e.target.result;
-
-            this.registerForm.get('imagen')?.setValue(file.name);
-            this.registerForm.get('imagen')?.markAsDirty();
-          });
-        };
-        reader.readAsDataURL(file);
+        // Limpia el mensaje de error si había uno
+        this.errorMessage = null;
       });
-    }
+    };
+
+    reader.onerror = (error) => {
+      console.error('Error al leer el archivo:', error);
+      this.errorMessage = 'Error al cargar la imagen.';
+    };
+
+    reader.readAsDataURL(file);
   }
 
   public fileOver(event: any) {}

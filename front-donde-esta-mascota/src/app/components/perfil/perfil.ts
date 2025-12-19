@@ -219,7 +219,7 @@ export class PerfilComponent implements OnInit {
         this.exito = '¡Perfil actualizado correctamente!';
         this.modoEdicion = false;
         this.imagenPreview = null;
-        this.imagenFile = null;
+        //this.imagenFile = null;
         this.guardando = false;
         this.cdr.detectChanges();
       },

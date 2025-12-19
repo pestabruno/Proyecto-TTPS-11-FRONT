@@ -143,25 +143,16 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Confirmar Contraseña</mat-label>
-        <input
-          matInput
-          [type]="hideConfirmPassword ? 'password' : 'text'"
-          formControlName="confirmPassword"
-        />
-        <button
-          mat-icon-button
-          matSuffix
-          (click)="hideConfirmPassword = !hideConfirmPassword"
-          type="button"
-        >
+        <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" formControlName="confirmPassword" />
+        <button mat-icon-button matSuffix (click)="hideConfirmPassword = !hideConfirmPassword" type="button">
           <mat-icon>{{ hideConfirmPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
         </button>
-        <mat-error *ngIf="confirmPassword?.touched && confirmPassword?.hasError('required')"
-          >Confirme la contraseña.</mat-error
-        >
-        <mat-error *ngIf="confirmPassword?.touched && registerForm?.errors?.['passwordsMismatch']"
-          >Las contraseñas no coinciden.</mat-error
-        >
+        <mat-error *ngIf="confirmPassword?.touched && confirmPassword?.hasError('required')">
+          Confirme la contraseña.
+        </mat-error>
+        <mat-error *ngIf="confirmPassword?.touched && registerForm.hasError('passwordsMismatch')">
+          Las contraseñas no coinciden.
+        </mat-error>
       </mat-form-field>
 
       <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
