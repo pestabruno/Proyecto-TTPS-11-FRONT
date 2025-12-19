@@ -1,9 +1,11 @@
+/* ==================== CONTENEDOR PRINCIPAL ==================== */
 .detalle-container {
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
 }
 
+/* ==================== BOTONES DE NAVEGACIÓN ==================== */
 .btn-volver {
   background-color: #6c757d;
   color: white;
@@ -13,13 +15,14 @@
   cursor: pointer;
   margin-bottom: 20px;
   font-size: 1rem;
+  transition: background-color 0.3s;
 }
 
 .btn-volver:hover {
   background-color: #5a6268;
 }
 
-/* Layout con grid */
+/* ==================== LAYOUT PRINCIPAL ==================== */
 .detalle-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -31,7 +34,7 @@
   min-width: 0;
 }
 
-/* Panel lateral */
+/* ==================== PANEL LATERAL ==================== */
 .panel-lateral {
   position: sticky;
   top: 20px;
@@ -104,6 +107,7 @@
   transform: none;
 }
 
+/* ==================== ENCABEZADO DE LA PUBLICACIÓN ==================== */
 .detalle-header {
   display: flex;
   justify-content: space-between;
@@ -139,7 +143,6 @@
 }
 
 /* ==================== GALERÍA DE IMÁGENES ==================== */
-
 .galeria-container {
   margin-bottom: 30px;
 }
@@ -162,7 +165,6 @@
   background: #fff;
 }
 
-/* Botones de navegación */
 .nav-btn {
   position: absolute;
   top: 50%;
@@ -190,7 +192,6 @@
   right: 15px;
 }
 
-/* Contador de imágenes */
 .contador-imagenes {
   position: absolute;
   bottom: 15px;
@@ -203,7 +204,6 @@
   font-weight: 500;
 }
 
-/* Thumbnails (miniaturas) */
 .thumbnails-container {
   display: flex;
   gap: 10px;
@@ -241,7 +241,6 @@
   object-fit: cover;
 }
 
-/* Sin imagen */
 .sin-imagen-detalle {
   background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
   height: 300px;
@@ -254,8 +253,7 @@
   font-size: 1.2rem;
 }
 
-/* ==================== FIN GALERÍA ==================== */
-
+/* ==================== INFORMACIÓN DE LA PUBLICACIÓN ==================== */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -282,6 +280,7 @@
   line-height: 1.6;
 }
 
+/* ==================== BOTONES DE ACCIÓN ==================== */
 .acciones-container {
   display: flex;
   flex-direction: column;
@@ -308,6 +307,28 @@
   background-color: #7B5CBF;
 }
 
+.btn-ver-mapa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ver-mapa:hover {
+  background-color: #45a049;
+}
+
+/* ==================== AVISTAMIENTOS ==================== */
 .avistamientos-section {
   margin-top: 40px;
   padding: 20px;
@@ -337,6 +358,7 @@
   color: #666;
 }
 
+/* ==================== MENSAJES DE CARGA Y ERROR ==================== */
 .mensaje-carga,
 .mensaje-error {
   text-align: center;
@@ -360,119 +382,7 @@
   cursor: pointer;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .detalle-layout {
-    grid-template-columns: 1fr;
-  }
-  
-  .panel-lateral {
-    position: relative;
-    top: 0;
-    order: -1;
-  }
-}
-
-@media (max-width: 768px) {
-  .detalle-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .detalle-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .panel-acciones {
-    gap: 10px;
-  }
-
-  .imagen-principal {
-    max-height: 400px;
-  }
-  
-  .nav-btn {
-    font-size: 2rem;
-    padding: 10px 15px;
-  }
-  
-  .thumbnail {
-    width: 80px;
-    height: 80px;
-  }
-}
-
-/* Estilos del formulario en el modal */
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #555;
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 1rem;
-  box-sizing: border-box;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #9370DB;
-}
-
-.modal-botones {
-  display: flex;
-  gap: 10px;
-  margin-top: 20px;
-}
-
-.btn-guardar {
-  flex: 1;
-  padding: 12px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.btn-guardar:hover:not(:disabled) {
-  background-color: #45a049;
-}
-
-.btn-guardar:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.btn-cancelar {
-  flex: 1;
-  padding: 12px;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-.btn-cancelar:hover {
-  background-color: #5a6268;
-}
-
-/* Modal Overlay */
+/* ==================== MODAL DE EDITAR ==================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -523,59 +433,41 @@
   color: #333;
 }
 
-
-/* ========================================
-   ESTILOS ADICIONALES PARA MODAL DE EDICIÓN
-   ======================================== */
-
-/* Campos de formulario con error */
-.form-group input.error,
-.form-group select.error,
-.form-group textarea.error {
-  border-color: #e74c3c;
-  background-color: #fff5f5;
+/* ==================== FORMULARIO DE EDICIÓN ==================== */
+.form-group {
+  margin-bottom: 1.5rem;
 }
 
-/* Mensajes de error */
-.error-message {
+.form-group label {
   display: block;
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.3rem;
-  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
 }
 
-/* Texto de ayuda (debajo del select de estado) */
-.help-text {
-  display: block;
-  color: #6c757d;
-  font-size: 0.85rem;
-  margin-top: 0.4rem;
-  font-style: italic;
-}
-
-/* Asterisco obligatorio */
-.required {
-  color: #e74c3c;
-  margin-left: 0.2rem;
-}
-
-/* Selectores mejorados */
-.form-group select {
+.form-group input,
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 1rem;
   background-color: white;
-  cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
-.form-group select:focus {
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-group select {
+  cursor: pointer;
 }
 
 .form-group select:disabled {
@@ -584,33 +476,53 @@
   opacity: 0.6;
 }
 
-/* Inputs mejorados */
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
-  transition: all 0.2s ease;
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #e74c3c;
+  background-color: #fff5f5;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-/* Labels mejorados */
-.form-group label {
+.error-message {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #333;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.3rem;
+  font-weight: 500;
+  animation: slideDown 0.2s ease-out;
 }
 
-/* Botones del modal */
+.required {
+  color: #e74c3c;
+  margin-left: 0.2rem;
+}
+
+/* ==================== MENSAJES DE AYUDA ==================== */
+.help-text {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-style: italic;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  border-left: 3px solid #6c757d;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.help-text-warning {
+  background-color: #fff3cd;
+  border-left-color: #f0ad4e;
+  color: #856404;
+}
+
+.help-text-info {
+  background-color: #d1ecf1;
+  border-left-color: #17a2b8;
+  color: #0c5460;
+}
+
+/* ==================== BOTONES DEL MODAL ==================== */
 .modal-botones {
   display: flex;
   gap: 1rem;
@@ -662,101 +574,7 @@
   cursor: not-allowed;
 }
 
-/* Espaciado entre grupos de formulario */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-/* Animación para mensajes de error */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.error-message,
-.help-text {
-  animation: slideDown 0.2s ease-out;
-}
-
-/* ========================================
-   ESTILOS PARA MENSAJES DE AYUDA MEJORADOS
-   ======================================== */
-
-/* Texto de ayuda base */
-.help-text {
-  display: block;
-  font-size: 0.85rem;
-  margin-top: 0.4rem;
-  font-style: italic;
-  padding: 0.5rem;
-  border-radius: 4px;
-  background-color: #f8f9fa;
-  border-left: 3px solid #6c757d;
-}
-
-/* Mensaje de ayuda tipo warning (para reversiones) */
-.help-text-warning {
-  background-color: #fff3cd;
-  border-left-color: #f0ad4e;
-  color: #856404;
-}
-
-/* Mensaje de ayuda tipo info (para estados definitivos) */
-.help-text-info {
-  background-color: #d1ecf1;
-  border-left-color: #17a2b8;
-  color: #0c5460;
-}
-
-/* Animación suave al aparecer */
-.help-text {
-  animation: fadeIn 0.3s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-    /* Mapa*/
-
-    
-.btn-ver-mapa {
-  display: flex;
-  /* Asegura que se comporte como bloque visible */
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 15px;
-  background-color: #4caf50;
-  /* Color verde */
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
-}
-
-.btn-ver-mapa:hover {
-  background-color: #45a049;
-}
-
-
+/* ==================== MODAL DEL MAPA ==================== */
 .modal-overlay-mapa {
   position: fixed !important;
   top: 0;
@@ -767,8 +585,7 @@
   display: flex !important;
   align-items: center;
   justify-content: center;
-  z-index: 100001 !important;
-  /* Mayor que el modal de editar */
+  z-index: 10001 !important;
 }
 
 .modal-content-mapa {
@@ -777,20 +594,9 @@
   border-radius: 15px;
   width: 95%;
   max-width: 1000px;
-  /* Mucho más ancho para el mapa */
   position: relative;
 }
 
-.map-wrapper {
-  width: 100%;
-  height: 500px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #ddd;
-}
-/* =========================================
-   ELEMENTOS INTERNOS DEL MODAL
-   ========================================= */
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -806,7 +612,6 @@
   color: #333;
 }
 
-/* BOTÓN CERRAR (X) */
 .cerrar-x {
   background: none;
   border: none;
@@ -822,44 +627,264 @@
   color: #ff4444;
 }
 
-/* =========================================
-   AJUSTES PARA EL MAPA DENTRO DEL MODAL
-   ========================================= */
-app-mapa-detalle {
-  display: block;
+.map-wrapper {
   width: 100%;
-  height: 450px;
-  /* Altura fija para el mapa */
+  height: 500px;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid #ddd;
 }
 
-/* =========================================
-   ANIMACIONES
-   ========================================= */
-@keyframes modalFadeIn {
+/* ==================== ANIMACIONES ==================== */
+@keyframes slideDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-5px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* =========================================
-   RESPONSIVIDAD
-   ========================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 1024px) {
+  .detalle-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .panel-lateral {
+    position: relative;
+    top: 0;
+    order: -1;
+  }
+}
+
 @media (max-width: 768px) {
-  .modal-content {
+  .detalle-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .detalle-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .panel-acciones {
+    gap: 10px;
+  }
+
+  .imagen-principal {
+    max-height: 400px;
+  }
+  
+  .nav-btn {
+    font-size: 2rem;
+    padding: 10px 15px;
+  }
+  
+  .thumbnail {
+    width: 80px;
+    height: 80px;
+  }
+
+  .modal-content-mapa {
     padding: 20px;
     width: 95%;
   }
 
-  app-mapa-detalle {
+  .map-wrapper {
     height: 350px;
+  }
+}
+
+/* ==================== MODAL DEL MAPA ==================== */
+.modal-overlay-mapa {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001 !important;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content-mapa {
+  background: white !important;
+  padding: 0;
+  border-radius: 15px;
+  width: 95%;
+  max-width: 1000px;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px 15px 0 0;
+  }
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cerrar-x {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: white;
+  transition: all 0.2s;
+  padding: 5px 12px;
+  border-radius: 8px;
+}
+
+.cerrar-x:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+.map-wrapper {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mensaje sin coordenadas */
+.sin-coordenadas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  color: #666;
+  text-align: center;
+  padding: 40px;
+}
+
+.sin-coordenadas p {
+  font-size: 1.2rem;
+  margin: 0 0 10px 0;
+  color: #f39c12;
+  font-weight: 600;
+}
+
+.sin-coordenadas small {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Footer del modal */
+.modal-footer {
+  padding: 20px 25px;
+  border-top: 2px solid #f0f0f0;
+  background: #f9f9f9;
+  border-radius: 0 0 15px 15px;
+}
+
+.info-mapa {
+  margin-bottom: 15px;
+  padding: 12px;
+  background: white;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.info-mapa p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.info-mapa strong {
+  color: #333;
+}
+
+.btn-cerrar-mapa {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.btn-cerrar-mapa:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-content-mapa {
+    width: 98%;
+    max-height: 95vh;
+  }
+
+  .modal-header h2 {
+    font-size: 1.2rem;
+  }
+
+  .map-wrapper {
+    height: 350px;
+  }
+
+  .info-mapa {
+    font-size: 0.85rem;
   }
 }

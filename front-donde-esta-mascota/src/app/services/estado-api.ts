@@ -83,12 +83,13 @@ export class EstadoApiService {
           };
 
           this.actualizarEstado({ usuario: usuarioActualizado });
-          console.log(`Ubicación de centroide obtenida para: ${localidad}`);
+          console.log(`✅ Ubicación de centroide obtenida para: ${localidad}`);
         }
       },
-      error: (err) => console.error('Error al obtener centroide del usuario:', err),
+      error: (err) => console.error('❌ Error al obtener centroide del usuario:', err),
     });
   }
+
   public cerrarSesion(): void {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_id');
@@ -116,13 +117,20 @@ export class EstadoApiService {
 
   // --- GESTIÓN DE PUBLICACIONES ---
   public setPublicaciones(publicaciones: Publicacion[]): void {
+    console.log(`📦 Cargando ${publicaciones.length} publicaciones...`);
+    
     // 1. Guardamos la lista básica
     this.actualizarEstado({ publicacionesGlobales: publicaciones });
 
-    // 2. Disparamos Georef para cada una que no tenga coordenadas
+    // 2. Disparamos Georef para cada publicación sin coordenadas
     publicaciones.forEach((pub) => {
-      if (!pub.latitud) {
-        this.enriquecerConCoordenadas(pub);
+      if (!pub.latitud || !pub.longitud) {
+        this.enriquecerPublicacionConCoordenadas(pub);
+      }
+      
+      // 3. ✅ NUEVO: Enriquecer avistamientos de cada publicación
+      if (pub.avistamientos && pub.avistamientos.length > 0) {
+        this.enriquecerAvistamientosDePublicacion(pub);
       }
     });
   }
@@ -130,18 +138,109 @@ export class EstadoApiService {
   public agregarNuevaPublicacion(nueva: Publicacion): void {
     const listaActualizada = [...this.estadoActual.publicacionesGlobales, nueva];
     this.actualizarEstado({ publicacionesGlobales: listaActualizada });
-    if (!nueva.latitud) this.enriquecerConCoordenadas(nueva);
+    
+    if (!nueva.latitud) {
+      this.enriquecerPublicacionConCoordenadas(nueva);
+    }
+    
+    // ✅ NUEVO: Enriquecer avistamientos de la nueva publicación
+    if (nueva.avistamientos && nueva.avistamientos.length > 0) {
+      this.enriquecerAvistamientosDePublicacion(nueva);
+    }
   }
 
-  private enriquecerConCoordenadas(pub: Publicacion): void {
+  // ✅ MÉTODO RENOMBRADO para mayor claridad
+  private enriquecerPublicacionConCoordenadas(pub: Publicacion): void {
     this.georefService
       .obtenerCoordenadas(pub.calle, pub.altura, pub.localidad, pub.provincia)
-      .subscribe((res) => {
-        if (res.direcciones?.length > 0) {
-          const { lat, lon } = res.direcciones[0].ubicacion;
-          this.actualizarCoordenadaPublicacion(pub.id, lat, lon);
+      .subscribe({
+        next: (res) => {
+          if (res.direcciones?.length > 0) {
+            const { lat, lon } = res.direcciones[0].ubicacion;
+            this.actualizarCoordenadaPublicacion(pub.id, lat, lon);
+            console.log(`✅ Coordenadas obtenidas para publicación #${pub.id}: [${lat}, ${lon}]`);
+          } else {
+            console.warn(`⚠️ No se encontraron coordenadas para: ${pub.calle} ${pub.altura}, ${pub.localidad}`);
+          }
+        },
+        error: (err) => {
+          console.error(`❌ Error al obtener coordenadas para publicación #${pub.id}:`, err);
         }
       });
+  }
+
+  // ✅ NUEVO: Enriquecer todos los avistamientos de una publicación
+  private enriquecerAvistamientosDePublicacion(pub: Publicacion): void {
+    if (!pub.avistamientos || pub.avistamientos.length === 0) return;
+
+    console.log(`👁️ Enriqueciendo ${pub.avistamientos.length} avistamientos de publicación #${pub.id}...`);
+
+    pub.avistamientos.forEach((avistamiento, index) => {
+      // Solo enriquecer si no tiene coordenadas
+      if (!avistamiento.latitud || !avistamiento.longitud) {
+        this.enriquecerAvistamientoConCoordenadas(pub.id, avistamiento, index);
+      }
+    });
+  }
+
+  // ✅ NUEVO: Enriquecer un avistamiento individual
+  private enriquecerAvistamientoConCoordenadas(
+    publicacionId: number, 
+    avistamiento: any, 
+    index: number
+  ): void {
+    // Verificar que tengamos los datos necesarios
+    if (!avistamiento.calle || !avistamiento.altura || !avistamiento.localidad || !avistamiento.provincia) {
+      console.warn(`⚠️ Avistamiento #${index} de publicación #${publicacionId} no tiene dirección completa`);
+      return;
+    }
+    console.log(`🔍 Obteniendo coordenadas para avistamiento #${avistamiento}...`);
+    this.georefService
+      .obtenerCoordenadas(
+        avistamiento.calle, 
+        avistamiento.altura, 
+        avistamiento.localidad, 
+        avistamiento.provincia
+      )
+      .subscribe({
+        next: (res) => {
+          if (res.direcciones?.length > 0) {
+            const { lat, lon } = res.direcciones[0].ubicacion;
+            console.log(`Avistamioento 22 #${avistamiento}...`,lat, lon);
+            this.actualizarCoordenadaAvistamiento(publicacionId, avistamiento.id, lat, lon);
+            console.log(`✅ Coordenadas obtenidas para avistamiento #${avistamiento.id}: [${lat}, ${lon}]`);
+          } else {
+            console.warn(`⚠️ No se encontraron coordenadas para avistamiento: ${avistamiento.calle} ${avistamiento.altura}`);
+          }
+        },
+        error: (err) => {
+          console.error(`❌ Error al obtener coordenadas para avistamiento #${avistamiento.id}:`, err);
+        }
+      });
+  }
+
+  // ✅ NUEVO: Actualizar coordenadas de un avistamiento específico
+  private actualizarCoordenadaAvistamiento(
+    publicacionId: number, 
+    avistamientoId: number, 
+    lat: number, 
+    lon: number
+  ): void {
+    const publicacionesActualizadas = this.estadoActual.publicacionesGlobales.map((pub) => {
+      if (pub.id === publicacionId && pub.avistamientos) {
+        return {
+          ...pub,
+          avistamientos: pub.avistamientos.map((avist) => 
+            avist.id === avistamientoId 
+              ? { ...avist, latitud: lat, longitud: lon }
+              : avist
+          )
+        };
+      }
+      return pub;
+    });
+
+    this.actualizarEstado({ publicacionesGlobales: publicacionesActualizadas });
   }
 
   private actualizarCoordenadaPublicacion(id: number, lat: number, lon: number): void {

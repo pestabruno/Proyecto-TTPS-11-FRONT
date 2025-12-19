@@ -57,6 +57,8 @@ export interface Avistamiento {
   imagenes64: string[];
   provincia: string;
   localidad: string;
+  latitud?: number;
+  longitud?: number;
   calle: string;
   altura: string;
 }

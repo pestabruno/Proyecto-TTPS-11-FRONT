@@ -94,7 +94,7 @@
             <p><strong>Provincia:</strong> {{ publicacion.provincia }}</p>
             <p><strong>Localidad:</strong> {{ publicacion.localidad }}</p>
             <p><strong>Calle:</strong> {{ publicacion.calle }} {{ publicacion.altura }}</p>
-            <button type="button" class="btn-ver-mapa" (click)="abrirModalMapa()">
+            <button type="button" class="btn-ver-mapa" (click)="abrirModalMapa($event)">
               <span>📍</span> Ver Mapa y Avistamientos
             </button>
           </div>
@@ -137,7 +137,7 @@
           
           <div class="panel-acciones">
             <button class="btn-panel btn-panel-editar" (click)="editarPublicacion()">
-              <span class="icono"></span>
+              <span class="icono">✏️</span>
               <span>Editar publicación</span>
             </button>
             
@@ -145,7 +145,7 @@
               class="btn-panel btn-panel-eliminar" 
               (click)="eliminarPublicacion()"
               [disabled]="eliminando">
-              <span class="icono"></span>
+              <span class="icono">🗑️</span>
               <span>{{ eliminando ? 'Eliminando...' : 'Eliminar publicación' }}</span>
             </button>
           </div>
@@ -330,26 +330,54 @@
 
     </form>
   </div>
-  <div class="modal-overlay-mapa" *ngIf="mostrarModalMapa">
-    <div class="modal-content-mapa">
-  
-      <div class="modal-header">
-        <h2>Ubicación de {{ publicacion?.nombre }}</h2>
-        <button class="cerrar-x" (click)="cerrarModalMapa()" title="Cerrar mapa">×</button>
-      </div>
-  
-      <div class="map-wrapper">
-        <app-mapa-detalle *ngIf="publicacion" [lat]="+(publicacion?.latitud ?? 0)" [lng]="+(publicacion?.longitud ?? 0)"
-          [nombreMascota]="publicacion?.nombre || ''" [avistamientos]="publicacion?.avistamientos || []">
-        </app-mapa-detalle>
-      </div>
-  
-      <div class="modal-botones">
-        <button type="button" class="btn-cancelar" style="width: 100%; margin-top: 15px;" (click)="cerrarModalMapa()">
-          Cerrar Vista de Mapa
-        </button>
-      </div>
-  
+</div>
+
+<!-- MODAL DEL MAPA (SEPARADO E INDEPENDIENTE) -->
+<div class="modal-overlay-mapa" *ngIf="mostrarModalMapa">
+  <div class="modal-content-mapa">
+
+    <div class="modal-header">
+      <h2>📍 Ubicación de {{ publicacion?.nombre }}</h2>
+      <button class="cerrar-x" (click)="cerrarModalMapa()" title="Cerrar mapa">×</button>
     </div>
+
+    <div class="map-wrapper">
+      <app-mapa-detalle 
+        *ngIf="publicacion && publicacion.latitud && publicacion.longitud" 
+        [lat]="publicacion.latitud" 
+        [lng]="publicacion.longitud"
+        [nombreMascota]="publicacion.nombre"
+        [calle]="publicacion.calle"
+        [altura]="publicacion.altura"
+        [localidad]="publicacion.localidad"
+        [avistamientos]="publicacion.avistamientos || []">
+      </app-mapa-detalle>
+
+      <!-- Mensaje si no hay coordenadas -->
+      <div *ngIf="!publicacion || !publicacion.latitud || !publicacion.longitud" 
+           class="sin-coordenadas">
+        <p>⚠️ Esta publicación no tiene coordenadas válidas</p>
+        <small>La dirección no pudo ser geocodificada</small>
+      </div>
+    </div>
+
+      <div class="modal-footer">
+        <!-- Información adicional -->
+        <div class="info-mapa">
+          <p>
+            <strong>🔴 Marcador Rojo:</strong> Ubicación donde se perdió la mascota<br>
+            <strong>🟡 Marcadores Amarillos:</strong> Avistamientos reportados
+            <!-- ✅ BIEN (correcto con && y optional chaining completo) -->
+            <span *ngIf="publicacion?.avistamientos && publicacion?.avistamientos?.length">
+              ({{ publicacion?.avistamientos?.length }})
+            </span>
+          </p>
+        </div>
+
+      <button type="button" class="btn-cerrar-mapa" (click)="cerrarModalMapa()">
+        Cerrar Vista de Mapa
+      </button>
+    </div>
+
   </div>
 </div>

@@ -1,12 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core'; // Añadido OnDestroy
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Publicacion } from '../../interfaces/estado.interface';
 import { PublicacionService } from '../../services/publicacion/publicacion.service';
+import { EstadoApiService } from '../../services/estado-api';
 import Swal from 'sweetalert2';
-import * as L from 'leaflet';
 import { MapaDetalleComponent } from '../mapaDetalle/mapaDetalle';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-detalle-publicacion',
@@ -16,29 +17,24 @@ import { MapaDetalleComponent } from '../mapaDetalle/mapaDetalle';
   styleUrls: ['./detalle-publicacion.css'],
 })
 export class DetallePublicacionComponent implements OnInit, OnDestroy {
-  // Implementa OnDestroy
   publicacion: Publicacion | null = null;
   cargando: boolean = true;
   error: string | null = null;
   mostrarModalEditar: boolean = false;
   guardando: boolean = false;
-
-  // Propiedades nuevas para el mapa
   mostrarModalMapa: boolean = false;
-  private mapDetalle?: L.Map;
 
-  // FormGroup para validaciones
   editarForm!: FormGroup;
 
-  // Propiedades para control de autor
   usuarioLogueadoId: number | null = null;
   esAutor: boolean = false;
   eliminando: boolean = false;
 
-  // Para la galería de imágenes
   imagenActualIndex: number = 0;
 
-  // Opciones para los selectores
+  // Suscripción al estado
+  private estadoSub?: Subscription;
+
   opcionesTamanio: string[] = ['Chico', 'Mediano', 'Grande'];
   opcionesProvincias: string[] = [
     'Buenos Aires',
@@ -67,13 +63,13 @@ export class DetallePublicacionComponent implements OnInit, OnDestroy {
     'Tucumán',
   ];
 
-  // Estados permitidos según el estado actual
   estadosPermitidos: { value: string; label: string }[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private publicacionService: PublicacionService,
+    private estadoApi: EstadoApiService, // ✅ Inyectar servicio de estado
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder
   ) {
@@ -87,16 +83,80 @@ export class DetallePublicacionComponent implements OnInit, OnDestroy {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (id) {
-      this.cargarPublicacion(id);
+      this.cargarPublicacionDesdeEstado(id);
     } else {
       this.error = 'ID de publicación inválido';
       this.cargando = false;
     }
   }
 
-  // Limpieza al destruir el componente
   ngOnDestroy(): void {
-    this.destruirMapa();
+    // Limpiar suscripción
+    this.estadoSub?.unsubscribe();
+  }
+
+  // ✅ NUEVO: Cargar publicación desde el estado global
+  cargarPublicacionDesdeEstado(id: number): void {
+    console.log('🔍 Buscando publicación #' + id + ' en el estado global...');
+    
+    // Primero intentar obtener del estado actual
+    const estadoActual = this.estadoApi.obtenerValorActual();
+    const publicacionEnEstado = estadoActual.publicacionesGlobales.find(p => p.id === id);
+
+    if (publicacionEnEstado) {
+      console.log('✅ Publicación encontrada en estado:', publicacionEnEstado);
+      console.log('📍 Coordenadas:', {
+        lat: publicacionEnEstado.latitud,
+        lng: publicacionEnEstado.longitud
+      });
+      
+      this.publicacion = publicacionEnEstado;
+      this.esAutor =
+        this.usuarioLogueadoId !== null && 
+        this.publicacion?.autor?.id === this.usuarioLogueadoId;
+      this.cargando = false;
+      this.cdr.detectChanges();
+    } else {
+      console.log('⚠️ Publicación no encontrada en estado, cargando desde backend...');
+      // Si no está en el estado, hacer fallback al backend
+      this.cargarPublicacionDesdeBackend(id);
+    }
+
+    // ✅ También suscribirse a cambios futuros del estado
+    this.estadoSub = this.estadoApi.estado$.subscribe((estado) => {
+      const publicacionActualizada = estado.publicacionesGlobales.find(p => p.id === id);
+      if (publicacionActualizada && this.publicacion?.id === id) {
+        console.log('🔄 Publicación actualizada en el estado');
+        this.publicacion = publicacionActualizada;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  // ✅ Fallback: Si no está en el estado, cargar del backend
+  cargarPublicacionDesdeBackend(id: number): void {
+    this.cargando = true;
+    this.error = null;
+
+    this.publicacionService.obtenerPorId(id).subscribe({
+      next: (data) => {
+        console.log('📥 Publicación cargada desde backend:', data);
+        console.log('📍 Coordenadas:', { lat: data.latitud, lng: data.longitud });
+        
+        this.publicacion = data;
+        this.esAutor =
+          this.usuarioLogueadoId !== null && 
+          this.publicacion?.autor?.id === this.usuarioLogueadoId;
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Error al cargar publicación:', err);
+        this.error = 'Error al cargar la publicación';
+        this.cargando = false;
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   abrirModalMapa(event?: Event): void {
@@ -104,79 +164,23 @@ export class DetallePublicacionComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
-
-    console.log('Intentando abrir modal...'); // SI NO VES ESTO EN CONSOLA, EL BOTÓN NO ANDA
+    
+    console.log('🗺️ Abriendo modal del mapa...');
+    console.log('📍 Publicación:', this.publicacion?.nombre);
+    console.log('📍 Coordenadas:', {
+      lat: this.publicacion?.latitud,
+      lng: this.publicacion?.longitud
+    });
+    
     this.mostrarModalMapa = true;
     this.cdr.detectChanges();
   }
 
   cerrarModalMapa(): void {
+    console.log('❌ Cerrando modal del mapa...');
     this.mostrarModalMapa = false;
+    this.cdr.detectChanges();
   }
-
-  private destruirMapa(): void {
-    if (this.mapDetalle) {
-      this.mapDetalle.remove();
-      this.mapDetalle = undefined;
-    }
-  }
-
-  private inicializarMapa(): void {
-    if (!this.publicacion || !this.publicacion.latitud || !this.publicacion.longitud) return;
-
-    const lat = this.publicacion.latitud;
-    const lng = this.publicacion.longitud;
-
-    // Inicializar mapa
-    this.mapDetalle = L.map('mapa-detalle').setView([lat, lng], 14);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
-    }).addTo(this.mapDetalle);
-
-    // Definición de iconos personalizados
-    const iconRed = L.icon({
-      iconUrl:
-        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
-
-    const iconYellow = L.icon({
-      iconUrl:
-        'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
-      shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-      popupAnchor: [1, -34],
-      shadowSize: [41, 41],
-    });
-
-    // Marcador principal (Mascota - Rojo)
-    L.marker([lat, lng], { icon: iconRed })
-      .addTo(this.mapDetalle)
-      .bindPopup(`<b>Origen: ${this.publicacion.nombre}</b>`)
-      .openPopup();
-
-    // Marcadores de avistamientos (Amarillo)
-    if (this.publicacion.avistamientos && this.publicacion.avistamientos.length > 0) {
-      this.publicacion.avistamientos.forEach((a: any) => {
-        if (a.latitud && a.longitud) {
-          L.marker([parseFloat(a.latitud), parseFloat(a.longitud)], { icon: iconYellow })
-            .addTo(this.mapDetalle!)
-            .bindPopup(`<b>Avistamiento</b><br>${a.fecha}<br>${a.descripcion || ''}`);
-        }
-      });
-    }
-
-    // Corregir renderizado de tiles
-    setTimeout(() => this.mapDetalle?.invalidateSize(), 200);
-  }
-
-  // --- FIN MÉTODOS DEL MAPA ---
 
   inicializarFormulario(): void {
     this.editarForm = this.fb.group({
@@ -190,26 +194,6 @@ export class DetallePublicacionComponent implements OnInit, OnDestroy {
       calle: ['', [Validators.required, Validators.minLength(2)]],
       altura: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       estado: ['', Validators.required],
-    });
-  }
-
-  cargarPublicacion(id: number): void {
-    this.cargando = true;
-    this.error = null;
-
-    this.publicacionService.obtenerPorId(id).subscribe({
-      next: (data) => {
-        this.publicacion = data;
-        this.esAutor =
-          this.usuarioLogueadoId !== null && this.publicacion?.autor?.id === this.usuarioLogueadoId;
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.error = 'Error al cargar la publicación';
-        this.cargando = false;
-        this.cdr.detectChanges();
-      },
     });
   }
 
