@@ -104,6 +104,7 @@ export class DetallePublicacionComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
     }
+
     console.log('Intentando abrir modal...'); // SI NO VES ESTO EN CONSOLA, EL BOTÓN NO ANDA
     this.mostrarModalMapa = true;
     this.cdr.detectChanges();
